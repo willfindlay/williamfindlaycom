@@ -23,7 +23,20 @@
     <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
-    <canvas id="particles" aria-hidden="true"></canvas>
+    <canvas id="particles" aria-hidden="true"
+      {{- with .Particles}}
+      data-count="{{.Count}}"
+      data-speed="{{.Speed}}"
+      data-size-min="{{.SizeMin}}"
+      data-size-max="{{.SizeMax}}"
+      data-connect-distance="{{.ConnectDistance}}"
+      data-connect-opacity="{{.ConnectOpacity}}"
+      data-push-range="{{.PushRange}}"
+      data-push-force="{{.PushForce}}"
+      data-pulse-speed="{{.PulseSpeed}}"
+      data-color="{{.Color}}"
+      data-color-alt="{{.ColorAlt}}"
+      {{- end}}></canvas>
 
     <header class="site-header">
         <nav class="nav container">

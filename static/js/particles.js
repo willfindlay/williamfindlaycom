@@ -7,18 +7,30 @@
     "(prefers-reduced-motion: reduce)",
   ).matches;
 
+  function attr(name, fallback) {
+    const v = canvas.dataset[name];
+    return v !== undefined ? Number(v) : fallback;
+  }
+
+  function attrColor(name, fallback) {
+    const v = canvas.dataset[name];
+    if (!v) return fallback;
+    const [r, g, b] = v.split(",").map(Number);
+    return { r, g, b };
+  }
+
   const CONFIG = {
-    count: 120,
-    maxSpeed: 0.3,
-    minRadius: 1,
-    maxRadius: 2.5,
-    connectionDistance: 140,
-    connectionOpacity: 0.08,
-    mouseRadius: 180,
-    mouseForce: 0.015,
-    pulseSpeed: 0.008,
-    color: { r: 79, g: 209, b: 197 }, // cyan accent
-    colorAlt: { r: 128, g: 90, b: 213 }, // purple secondary
+    count: attr("count", 120),
+    maxSpeed: attr("speed", 0.3),
+    minRadius: attr("sizeMin", 1),
+    maxRadius: attr("sizeMax", 2.5),
+    connectionDistance: attr("connectDistance", 140),
+    connectionOpacity: attr("connectOpacity", 0.08),
+    mouseRadius: attr("pushRange", 180),
+    mouseForce: attr("pushForce", 0.015),
+    pulseSpeed: attr("pulseSpeed", 0.008),
+    color: attrColor("color", { r: 79, g: 209, b: 197 }),
+    colorAlt: attrColor("colorAlt", { r: 128, g: 90, b: 213 }),
   };
 
   let width, height, dpr;

@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/willfindlay/williamfindlaycom/internal/config"
 	"github.com/willfindlay/williamfindlaycom/internal/content"
 	"github.com/willfindlay/williamfindlaycom/internal/render"
 )
@@ -13,6 +14,7 @@ type Deps struct {
 	Renderer  *render.Renderer
 	SiteTitle string
 	SiteURL   string
+	Particles config.ParticleConfig
 }
 
 type PageData struct {
@@ -22,6 +24,7 @@ type PageData struct {
 	Description  string
 	CanonicalURL string
 	ActiveNav    string
+	Particles    config.ParticleConfig
 }
 
 func (d *Deps) basePage(activeNav string) PageData {
@@ -29,6 +32,7 @@ func (d *Deps) basePage(activeNav string) PageData {
 		SiteTitle: d.SiteTitle,
 		SiteURL:   d.SiteURL,
 		ActiveNav: activeNav,
+		Particles: d.Particles,
 	}
 }
 
