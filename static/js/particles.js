@@ -28,6 +28,8 @@
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const oldW = width;
+    const oldH = height;
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = width * dpr;
@@ -35,6 +37,15 @@
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    if (oldW && oldH) {
+      const sx = width / oldW;
+      const sy = height / oldH;
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].x *= sx;
+        particles[i].y *= sy;
+      }
+    }
   }
 
   function createParticle() {
