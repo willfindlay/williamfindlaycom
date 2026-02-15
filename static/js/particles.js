@@ -22,14 +22,13 @@
   };
 
   let width, height, dpr;
+  let wrapW, wrapH;
   let mouse = { x: -1000, y: -1000 };
   let particles = [];
   let animId;
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const oldW = width;
-    const oldH = height;
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = width * dpr;
@@ -37,15 +36,6 @@
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    if (oldW && oldH) {
-      const sx = width / oldW;
-      const sy = height / oldH;
-      for (let i = 0; i < particles.length; i++) {
-        particles[i].x *= sx;
-        particles[i].y *= sy;
-      }
-    }
   }
 
   function createParticle() {
@@ -68,6 +58,8 @@
 
   function init() {
     resize();
+    wrapW = width;
+    wrapH = height;
     particles = [];
     for (let i = 0; i < CONFIG.count; i++) {
       const p = createParticle();
@@ -104,11 +96,11 @@
       p.vx *= 0.998;
       p.vy *= 0.998;
 
-      // Wrap around edges
-      if (p.x < -10) p.x = width + 10;
-      if (p.x > width + 10) p.x = -10;
-      if (p.y < -10) p.y = height + 10;
-      if (p.y > height + 10) p.y = -10;
+      // Wrap around edges (fixed bounds so zoom doesn't cluster)
+      if (p.x < -10) p.x = wrapW + 10;
+      if (p.x > wrapW + 10) p.x = -10;
+      if (p.y < -10) p.y = wrapH + 10;
+      if (p.y > wrapH + 10) p.y = -10;
     }
   }
 
