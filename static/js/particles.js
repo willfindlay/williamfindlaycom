@@ -36,14 +36,29 @@
     canvas.style.width = width + "px";
     canvas.style.height = height + "px";
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // Expand wrap bounds and spawn particles when viewport grows past max
+    if (wrapW && wrapH && (width > wrapW || height > wrapH)) {
+      const oldArea = wrapW * wrapH;
+      wrapW = Math.max(wrapW, width);
+      wrapH = Math.max(wrapH, height);
+      const extra = Math.round(
+        particles.length * ((wrapW * wrapH) / oldArea - 1),
+      );
+      for (let i = 0; i < extra; i++) {
+        const p = createParticle();
+        p.baseRadius = p.radius;
+        particles.push(p);
+      }
+    }
   }
 
   function createParticle() {
     const useAlt = Math.random() < 0.15;
     const c = useAlt ? CONFIG.colorAlt : CONFIG.color;
     return {
-      x: Math.random() * width,
-      y: Math.random() * height,
+      x: Math.random() * (wrapW || width),
+      y: Math.random() * (wrapH || height),
       vx: (Math.random() - 0.5) * CONFIG.maxSpeed,
       vy: (Math.random() - 0.5) * CONFIG.maxSpeed,
       radius:
