@@ -161,6 +161,23 @@
     mouse.y = -1000;
   });
 
+  window.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    mouse.x = t.clientX;
+    mouse.y = t.clientY;
+  }, { passive: true });
+
+  window.addEventListener("touchmove", (e) => {
+    const t = e.touches[0];
+    mouse.x = t.clientX;
+    mouse.y = t.clientY;
+  }, { passive: true });
+
+  window.addEventListener("touchend", () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
+  });
+
   // Start
   init();
   loop();
