@@ -1,0 +1,28 @@
+{{define "content"}}
+<section class="page-header">
+    <h1 class="page-header__title">Projects</h1>
+</section>
+
+<div class="project-grid">
+    {{range .Projects}}
+    <article class="card">
+        <a href="/projects/{{.Slug}}" class="card__link">
+            <h3 class="card__title">{{.Title}}</h3>
+            <p class="card__description">{{.Description}}</p>
+            <div class="card__meta">
+                <span class="status status--{{.Status}}">{{.Status}}</span>
+                {{if .Tags}}
+                <div class="card__tags">
+                    {{range .Tags}}<span class="tag">{{.}}</span>{{end}}
+                </div>
+                {{end}}
+            </div>
+        </a>
+    </article>
+    {{end}}
+</div>
+
+{{if not .Projects}}
+<p class="empty-state">No projects yet.</p>
+{{end}}
+{{end}}

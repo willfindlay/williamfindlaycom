@@ -1,0 +1,16 @@
+{{define "content"}}
+<article class="post">
+    <header class="post__header">
+        <time class="post__date" datetime="{{formatDateShort .Post.Date}}">{{formatDate .Post.Date}}</time>
+        <h1 class="post__title">{{.Post.Title}}</h1>
+        {{if .Post.Tags}}
+        <div class="post__tags">
+            {{range .Post.Tags}}<a href="/blog?tag={{.}}" class="tag">{{.}}</a>{{end}}
+        </div>
+        {{end}}
+    </header>
+    <div class="prose">
+        {{.Post.Content}}
+    </div>
+</article>
+{{end}}

@@ -1,0 +1,124 @@
+/* Cards */
+.card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition:
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
+  overflow: hidden;
+}
+
+.card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+}
+
+.card__link {
+  display: block;
+  padding: var(--space-xl);
+  height: 100%;
+}
+
+.card__date {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  margin-bottom: var(--space-sm);
+}
+
+.card__title {
+  font-family: "Syne", sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: var(--space-sm);
+  transition: color var(--transition-fast);
+}
+
+.card:hover .card__title {
+  color: var(--color-accent);
+}
+
+.card__description {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: var(--space-md);
+}
+
+.card__tags {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+/* Featured Card */
+.card--featured {
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-card),
+    var(--color-surface)
+  );
+  border-color: var(--color-border-hover);
+}
+
+.card--featured .card__title {
+  font-size: 1.5rem;
+}
+
+.card--featured .card__description {
+  font-size: 1.05rem;
+}
+
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+a.tag:hover,
+.tag--active {
+  background: var(--color-accent-glow);
+}
+
+/* Status Badge */
+.status {
+  display: inline-block;
+  padding: 0.15em 0.6em;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status--active {
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.status--archived {
+  color: var(--color-text-faint);
+  background: rgba(100, 116, 139, 0.15);
+}
+
+.status--wip {
+  color: var(--color-secondary);
+  background: var(--color-secondary-dim);
+}

@@ -1,0 +1,38 @@
+{{define "content"}}
+<section class="page-header">
+    <h1 class="page-header__title">Blog</h1>
+    {{if .ActiveTag}}
+    <p class="page-header__subtitle">Posts tagged <span class="tag tag--active">{{.ActiveTag}}</span></p>
+    <a href="/blog" class="page-header__clear">Clear filter</a>
+    {{end}}
+</section>
+
+{{if .AllTags}}
+<div class="tag-filter">
+    {{range .AllTags}}
+    <a href="/blog?tag={{.}}" class="tag{{if eq . $.ActiveTag}} tag--active{{end}}">{{.}}</a>
+    {{end}}
+</div>
+{{end}}
+
+<div class="post-grid">
+    {{range $i, $post := .Posts}}
+    <article class="card{{if and (eq $i 0) (not $.ActiveTag)}} card--featured{{end}}">
+        <a href="/blog/{{$post.Slug}}" class="card__link">
+            <time class="card__date" datetime="{{formatDateShort $post.Date}}">{{formatDate $post.Date}}</time>
+            <h3 class="card__title">{{$post.Title}}</h3>
+            <p class="card__description">{{$post.Description}}</p>
+            {{if $post.Tags}}
+            <div class="card__tags">
+                {{range $post.Tags}}<span class="tag">{{.}}</span>{{end}}
+            </div>
+            {{end}}
+        </a>
+    </article>
+    {{end}}
+</div>
+
+{{if not .Posts}}
+<p class="empty-state">No posts yet.</p>
+{{end}}
+{{end}}

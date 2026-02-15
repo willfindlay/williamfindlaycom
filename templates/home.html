@@ -1,0 +1,52 @@
+{{define "content"}}
+<section class="hero">
+    <h1 class="hero__title">William Findlay</h1>
+    <p class="hero__subtitle">Software engineer, security researcher, and systems thinker.</p>
+</section>
+
+{{if .RecentPosts}}
+<section class="section">
+    <h2 class="section__title">Recent Posts</h2>
+    <div class="post-grid">
+        {{range $i, $post := .RecentPosts}}
+        <article class="card{{if eq $i 0}} card--featured{{end}}">
+            <a href="/blog/{{$post.Slug}}" class="card__link">
+                <time class="card__date" datetime="{{formatDateShort $post.Date}}">{{formatDate $post.Date}}</time>
+                <h3 class="card__title">{{$post.Title}}</h3>
+                <p class="card__description">{{$post.Description}}</p>
+                {{if $post.Tags}}
+                <div class="card__tags">
+                    {{range $post.Tags}}<span class="tag">{{.}}</span>{{end}}
+                </div>
+                {{end}}
+            </a>
+        </article>
+        {{end}}
+    </div>
+</section>
+{{end}}
+
+{{if .FeaturedProjects}}
+<section class="section">
+    <h2 class="section__title">Featured Projects</h2>
+    <div class="project-grid">
+        {{range .FeaturedProjects}}
+        <article class="card">
+            <a href="/projects/{{.Slug}}" class="card__link">
+                <h3 class="card__title">{{.Title}}</h3>
+                <p class="card__description">{{.Description}}</p>
+                <div class="card__meta">
+                    <span class="status status--{{.Status}}">{{.Status}}</span>
+                    {{if .Tags}}
+                    <div class="card__tags">
+                        {{range .Tags}}<span class="tag">{{.}}</span>{{end}}
+                    </div>
+                    {{end}}
+                </div>
+            </a>
+        </article>
+        {{end}}
+    </div>
+</section>
+{{end}}
+{{end}}

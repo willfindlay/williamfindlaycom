@@ -1,0 +1,57 @@
+{{define "base"}}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{if .PageTitle}}{{.PageTitle}} — {{end}}{{.SiteTitle}}</title>
+    <meta name="description" content="{{.Description}}">
+
+    {{if .CanonicalURL}}<link rel="canonical" href="{{.CanonicalURL}}">{{end}}
+
+    <meta property="og:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}{{.SiteTitle}}{{end}}">
+    <meta property="og:description" content="{{.Description}}">
+    <meta property="og:type" content="website">
+    {{if .CanonicalURL}}<meta property="og:url" content="{{.CanonicalURL}}">{{end}}
+
+    <link rel="alternate" type="application/atom+xml" title="{{.SiteTitle}}" href="/feed.xml">
+
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel="stylesheet" href="/static/css/typography.css">
+    <link rel="stylesheet" href="/static/css/layout.css">
+    <link rel="stylesheet" href="/static/css/components.css">
+    <link rel="stylesheet" href="/static/css/syntax.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+        <nav class="nav container">
+            <a href="/" class="nav__logo">{{.SiteTitle}}</a>
+            <ul class="nav__links">
+                <li><a href="/blog"{{if eq .ActiveNav "blog"}} class="active"{{end}}>Blog</a></li>
+                <li><a href="/projects"{{if eq .ActiveNav "projects"}} class="active"{{end}}>Projects</a></li>
+                <li><a href="/resume"{{if eq .ActiveNav "resume"}} class="active"{{end}}>Resume</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main container">
+        {{template "content" .}}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer__inner">
+            <p>&copy; {{currentYear}} {{.SiteTitle}}</p>
+            <ul class="footer__links">
+                <li><a href="https://github.com/willfindlay" target="_blank" rel="noopener">GitHub</a></li>
+                <li><a href="https://linkedin.com/in/willfindlay" target="_blank" rel="noopener">LinkedIn</a></li>
+                <li><a href="mailto:william@williamfindlay.com">Email</a></li>
+                <li><a href="/feed.xml">Feed</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/static/js/particles.js"></script>
+</body>
+</html>{{end}}

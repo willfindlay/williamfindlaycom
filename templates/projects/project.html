@@ -1,0 +1,20 @@
+{{define "content"}}
+<article class="post">
+    <header class="post__header">
+        <h1 class="post__title">{{.Project.Title}}</h1>
+        <div class="post__meta">
+            <span class="status status--{{.Project.Status}}">{{.Project.Status}}</span>
+            {{if .Project.Repo}}<a href="{{.Project.Repo}}" class="post__link" target="_blank" rel="noopener">Source Code</a>{{end}}
+            {{if .Project.URL}}<a href="{{.Project.URL}}" class="post__link" target="_blank" rel="noopener">Live Demo</a>{{end}}
+        </div>
+        {{if .Project.Tags}}
+        <div class="post__tags">
+            {{range .Project.Tags}}<span class="tag">{{.}}</span>{{end}}
+        </div>
+        {{end}}
+    </header>
+    <div class="prose">
+        {{.Project.Content}}
+    </div>
+</article>
+{{end}}
