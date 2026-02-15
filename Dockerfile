@@ -1,6 +1,7 @@
 FROM golang:1.25-alpine AS build
 
 RUN apk add --no-cache ca-certificates
+RUN mkdir -p /data/content && chown 65534:65534 /data/content
 
 WORKDIR /src
 COPY go.mod go.sum ./
@@ -12,6 +13,7 @@ FROM gcr.io/distroless/static:nonroot
 
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=build /server /server
+COPY --from=build --chown=nonroot:nonroot /data /data
 
 USER nonroot:nonroot
 EXPOSE 8080

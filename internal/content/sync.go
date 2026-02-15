@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -31,7 +32,7 @@ func auth(token string) *githttp.BasicAuth {
 }
 
 func CloneOrPull(cfg SyncConfig) error {
-	if _, err := os.Stat(cfg.Dir); err != nil {
+	if _, err := os.Stat(filepath.Join(cfg.Dir, ".git")); err != nil {
 		if !os.IsNotExist(err) {
 			return fmt.Errorf("checking content dir: %w", err)
 		}
