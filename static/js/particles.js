@@ -108,7 +108,7 @@
       const p = particles[i];
 
       // Pulse
-      p.pulsePhase += CONFIG.pulseSpeed;
+      p.pulsePhase = (p.pulsePhase + CONFIG.pulseSpeed) % (Math.PI * 2);
       const pulse = Math.sin(p.pulsePhase);
       p.radius = p.baseRadius + pulse * 0.5;
       p.opacity = 0.3 + pulse * 0.15;
