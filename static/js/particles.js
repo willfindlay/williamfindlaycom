@@ -9,14 +9,17 @@
 
   function attr(name, fallback) {
     const v = canvas.dataset[name];
-    return v !== undefined ? Number(v) : fallback;
+    if (v === undefined) return fallback;
+    const n = Number(v);
+    return Number.isNaN(n) ? fallback : n;
   }
 
   function attrColor(name, fallback) {
     const v = canvas.dataset[name];
     if (!v) return fallback;
-    const [r, g, b] = v.split(",").map(Number);
-    return { r, g, b };
+    const parts = v.split(",").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return fallback;
+    return { r: parts[0], g: parts[1], b: parts[2] };
   }
 
   const CONFIG = {
@@ -54,10 +57,15 @@
       const oldArea = wrapW * wrapH;
       wrapW = Math.max(wrapW, width);
       wrapH = Math.max(wrapH, height);
+      const maxParticles = CONFIG.count * 4;
       const extra = Math.round(
         particles.length * ((wrapW * wrapH) / oldArea - 1),
       );
-      for (let i = 0; i < extra; i++) {
+      const toSpawn = Math.min(
+        extra,
+        Math.max(0, maxParticles - particles.length),
+      );
+      for (let i = 0; i < toSpawn; i++) {
         const p = createParticle();
         p.baseRadius = p.radius;
         particles.push(p);
@@ -84,9 +92,9 @@
   }
 
   function init() {
+    wrapW = window.innerWidth;
+    wrapH = window.innerHeight;
     resize();
-    wrapW = width;
-    wrapH = height;
     particles = [];
     for (let i = 0; i < CONFIG.count; i++) {
       const p = createParticle();
@@ -191,21 +199,37 @@
     mouse.y = -1000;
   });
 
-  window.addEventListener("touchstart", (e) => {
-    const t = e.touches[0];
-    mouse.x = t.clientX;
-    mouse.y = t.clientY;
-  }, { passive: true });
+  window.addEventListener(
+    "touchstart",
+    (e) => {
+      const t = e.touches[0];
+      mouse.x = t.clientX;
+      mouse.y = t.clientY;
+    },
+    { passive: true },
+  );
 
-  window.addEventListener("touchmove", (e) => {
-    const t = e.touches[0];
-    mouse.x = t.clientX;
-    mouse.y = t.clientY;
-  }, { passive: true });
+  window.addEventListener(
+    "touchmove",
+    (e) => {
+      const t = e.touches[0];
+      mouse.x = t.clientX;
+      mouse.y = t.clientY;
+    },
+    { passive: true },
+  );
 
   window.addEventListener("touchend", () => {
     mouse.x = -1000;
     mouse.y = -1000;
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      cancelAnimationFrame(animId);
+    } else {
+      animId = requestAnimationFrame(loop);
+    }
   });
 
   // Start
