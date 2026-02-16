@@ -56,15 +56,16 @@ func LoadFromDir(dir string) (*ContentStore, error) {
 	return store, nil
 }
 
-func loadBlogPosts(dir string, store *ContentStore) error {
+func loadMarkdownDir[T any](dir string, decode func([]byte, string) (T, error)) ([]T, error) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil
+			return nil, nil
 		}
-		return err
+		return nil, err
 	}
 
+	var items []T
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
@@ -72,20 +73,37 @@ func loadBlogPosts(dir string, store *ContentStore) error {
 
 		data, err := os.ReadFile(filepath.Join(dir, e.Name()))
 		if err != nil {
-			return fmt.Errorf("reading %s: %w", e.Name(), err)
+			return nil, fmt.Errorf("reading %s: %w", e.Name(), err)
 		}
 
+		slug := strings.TrimSuffix(e.Name(), ".md")
+		item, err := decode(data, slug)
+		if err != nil {
+			return nil, fmt.Errorf("parsing %s: %w", e.Name(), err)
+		}
+
+		items = append(items, item)
+	}
+
+	return items, nil
+}
+
+func loadBlogPosts(dir string, store *ContentStore) error {
+	posts, err := loadMarkdownDir(dir, func(data []byte, slug string) (BlogPost, error) {
 		var post BlogPost
 		rendered, err := renderMarkdown(data, &post)
 		if err != nil {
-			return fmt.Errorf("parsing %s: %w", e.Name(), err)
+			return post, err
 		}
-
-		post.Slug = strings.TrimSuffix(e.Name(), ".md")
+		post.Slug = slug
 		post.Content = rendered
-		store.Posts = append(store.Posts, post)
+		return post, nil
+	})
+	if err != nil {
+		return err
 	}
 
+	store.Posts = posts
 	sort.Slice(store.Posts, func(i, j int) bool {
 		return store.Posts[i].Date.After(store.Posts[j].Date)
 	})
@@ -102,35 +120,21 @@ func loadBlogPosts(dir string, store *ContentStore) error {
 }
 
 func loadProjects(dir string, store *ContentStore) error {
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return err
-	}
-
-	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
-			continue
-		}
-
-		data, err := os.ReadFile(filepath.Join(dir, e.Name()))
-		if err != nil {
-			return fmt.Errorf("reading %s: %w", e.Name(), err)
-		}
-
+	projects, err := loadMarkdownDir(dir, func(data []byte, slug string) (Project, error) {
 		var proj Project
 		rendered, err := renderMarkdown(data, &proj)
 		if err != nil {
-			return fmt.Errorf("parsing %s: %w", e.Name(), err)
+			return proj, err
 		}
-
-		proj.Slug = strings.TrimSuffix(e.Name(), ".md")
+		proj.Slug = slug
 		proj.Content = rendered
-		store.Projects = append(store.Projects, proj)
+		return proj, nil
+	})
+	if err != nil {
+		return err
 	}
 
+	store.Projects = projects
 	sort.Slice(store.Projects, func(i, j int) bool {
 		return store.Projects[i].Date.After(store.Projects[j].Date)
 	})
