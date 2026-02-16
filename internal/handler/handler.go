@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"log/slog"
 	"net/http"
 
@@ -37,8 +38,14 @@ func (d *Deps) basePage(activeNav string) PageData {
 }
 
 func (d *Deps) render(w http.ResponseWriter, tmpl string, data any) {
-	if err := d.Renderer.Render(w, tmpl, data); err != nil {
+	var buf bytes.Buffer
+	if err := d.Renderer.Render(&buf, tmpl, data); err != nil {
 		slog.Error("render error", "template", tmpl, "err", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if _, err := buf.WriteTo(w); err != nil {
+		slog.Error("write error", "template", tmpl, "err", err)
 	}
 }
 
