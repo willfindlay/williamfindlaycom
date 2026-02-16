@@ -69,6 +69,15 @@ Test content.
 	return httptest.NewServer(srv.routes())
 }
 
+func readBody(t *testing.T, resp *http.Response) string {
+	t.Helper()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("reading response body: %v", err)
+	}
+	return string(body)
+}
+
 func TestRoutes_Home(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()
@@ -81,6 +90,11 @@ func TestRoutes_Home(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "<html") {
+		t.Error("expected HTML in response body")
 	}
 }
 
@@ -97,6 +111,11 @@ func TestRoutes_NotFound(t *testing.T) {
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", resp.StatusCode)
 	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "Not Found") {
+		t.Error("expected 'Not Found' in response body")
+	}
 }
 
 func TestRoutes_BlogList(t *testing.T) {
@@ -112,6 +131,11 @@ func TestRoutes_BlogList(t *testing.T) {
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "<html") {
+		t.Error("expected HTML in response body")
+	}
 }
 
 func TestRoutes_BlogPost_NotFound(t *testing.T) {
@@ -126,6 +150,11 @@ func TestRoutes_BlogPost_NotFound(t *testing.T) {
 
 	if resp.StatusCode != http.StatusNotFound {
 		t.Errorf("expected 404, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "Not Found") {
+		t.Error("expected 'Not Found' in response body")
 	}
 }
 
@@ -143,9 +172,9 @@ func TestRoutes_Health(t *testing.T) {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	if strings.TrimSpace(string(body)) != "ok" {
-		t.Errorf("expected body 'ok', got %q", string(body))
+	body := readBody(t, resp)
+	if strings.TrimSpace(body) != "ok" {
+		t.Errorf("expected body 'ok', got %q", body)
 	}
 }
 
@@ -161,6 +190,11 @@ func TestRoutes_StaticFiles(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if len(body) == 0 {
+		t.Error("expected non-empty response body")
 	}
 }
 
@@ -210,8 +244,8 @@ func TestRoutes_Feed(t *testing.T) {
 		t.Errorf("expected atom+xml content type, got %q", ct)
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	if !strings.Contains(string(body), "<feed") {
+	body := readBody(t, resp)
+	if !strings.Contains(body, "<feed") {
 		t.Error("expected Atom feed element in body")
 	}
 }
