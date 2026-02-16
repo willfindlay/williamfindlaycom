@@ -25,14 +25,6 @@ var funcMap = template.FuncMap{
 	"formatRFC3339": func(t time.Time) string {
 		return t.Format(time.RFC3339)
 	},
-	"join": strings.Join,
-	"truncate": func(s string, n int) string {
-		runes := []rune(s)
-		if len(runes) <= n {
-			return s
-		}
-		return string(runes[:n]) + "..."
-	},
 	"currentYear": func() int {
 		return time.Now().Year()
 	},
