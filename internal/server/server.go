@@ -17,11 +17,10 @@ import (
 )
 
 type Server struct {
-	cfg      *config.Config
-	static   fs.FS
-	store    *content.AtomicStore
-	deps     *handler.Deps
-	renderer *render.Renderer
+	cfg    *config.Config
+	static fs.FS
+	store  *content.AtomicStore
+	deps   *handler.Deps
 }
 
 func New(cfg *config.Config, embedded fs.FS) (*Server, error) {
@@ -40,11 +39,10 @@ func New(cfg *config.Config, embedded fs.FS) (*Server, error) {
 	}
 
 	return &Server{
-		cfg:      cfg,
-		static:   embedded,
-		store:    store,
-		deps:     deps,
-		renderer: renderer,
+		cfg:    cfg,
+		static: embedded,
+		store:  store,
+		deps:   deps,
 	}, nil
 }
 

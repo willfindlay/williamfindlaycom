@@ -60,11 +60,10 @@ Test content.
 	}
 
 	srv := &Server{
-		cfg:      &config.Config{},
-		static:   williamfindlaycom.Embedded,
-		store:    store,
-		deps:     deps,
-		renderer: renderer,
+		cfg:    &config.Config{},
+		static: williamfindlaycom.Embedded,
+		store:  store,
+		deps:   deps,
 	}
 
 	return httptest.NewServer(srv.routes())
