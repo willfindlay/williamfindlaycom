@@ -23,8 +23,8 @@
 }
 
 .nav__logo {
-  font-family: "Syne", sans-serif;
-  font-weight: 800;
+  font-family: "DejaVu Sans", sans-serif;
+  font-weight: 700;
   font-size: 1.25rem;
   color: var(--color-text);
   letter-spacing: -0.02em;
@@ -41,7 +41,7 @@
 }
 
 .nav__links a {
-  font-family: "Syne", sans-serif;
+  font-family: "DejaVu Sans", sans-serif;
   font-weight: 500;
   font-size: 0.9rem;
   color: var(--color-text-muted);
@@ -238,8 +238,8 @@
 
 .error-page__code {
   font-size: clamp(4rem, 12vw, 8rem);
-  font-family: "Syne", sans-serif;
-  font-weight: 800;
+  font-family: "DejaVu Sans", sans-serif;
+  font-weight: 700;
   background: linear-gradient(
     135deg,
     var(--color-accent),
