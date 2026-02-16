@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"log/slog"
 	"net/http"
 
@@ -26,9 +27,15 @@ func (d *Deps) Feed() http.HandlerFunc {
 			data.Posts = store.Posts
 		}
 
-		w.Header().Set("Content-Type", "application/atom+xml; charset=utf-8")
-		if err := d.Renderer.RenderFeed(w, data); err != nil {
+		var buf bytes.Buffer
+		if err := d.Renderer.RenderFeed(&buf, data); err != nil {
 			slog.Error("render error", "template", "feed.xml", "err", err)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/atom+xml; charset=utf-8")
+		if _, err := buf.WriteTo(w); err != nil {
+			slog.Error("write error", "template", "feed.xml", "err", err)
 		}
 	}
 }
