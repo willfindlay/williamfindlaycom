@@ -1,6 +1,6 @@
 {{define "feed"}}<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <title>{{.SiteTitle}}</title>
+    <title>{{xmlEscape .SiteTitle}}</title>
     <link href="{{.SiteURL}}" rel="alternate"/>
     <link href="{{.SiteURL}}/feed.xml" rel="self"/>
     <id>{{.SiteURL}}/</id>
@@ -8,16 +8,16 @@
     <updated>{{formatRFC3339 (index .Posts 0).Date}}</updated>
     {{end}}
     <author>
-        <name>{{.SiteTitle}}</name>
+        <name>{{xmlEscape .SiteTitle}}</name>
     </author>
     {{range .Posts}}
     <entry>
-        <title>{{.Title}}</title>
+        <title>{{xmlEscape .Title}}</title>
         <link href="{{$.SiteURL}}/blog/{{.Slug}}" rel="alternate"/>
         <id>{{$.SiteURL}}/blog/{{.Slug}}</id>
         <published>{{formatRFC3339 .Date}}</published>
         <updated>{{formatRFC3339 .Date}}</updated>
-        <summary>{{.Description}}</summary>
+        <summary>{{xmlEscape .Description}}</summary>
     </entry>
     {{end}}
 </feed>{{end}}
