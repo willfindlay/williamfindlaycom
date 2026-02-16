@@ -26,9 +26,6 @@ var funcMap = template.FuncMap{
 		return t.Format(time.RFC3339)
 	},
 	"join": strings.Join,
-	"safeHTML": func(s string) template.HTML {
-		return template.HTML(s)
-	},
 	"truncate": func(s string, n int) string {
 		runes := []rune(s)
 		if len(runes) <= n {
