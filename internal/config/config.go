@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"time"
@@ -49,7 +50,7 @@ func Load() (*Config, error) {
 		syncInterval = d
 	}
 
-	return &Config{
+	cfg := &Config{
 		Port:              envOr("PORT", "8080"),
 		ContentRepoURL:    repoURL,
 		ContentRepoBranch: envOr("CONTENT_REPO_BRANCH", "main"),
@@ -60,19 +61,25 @@ func Load() (*Config, error) {
 		SiteURL:           envOr("SITE_URL", "https://williamfindlay.com"),
 		DevMode:           os.Getenv("DEV_MODE") == "true",
 		Particles: ParticleConfig{
-			Count:           envOrInt("PARTICLE_COUNT", 120),
-			Speed:           envOrFloat("PARTICLE_SPEED", 0.3),
-			SizeMin:         envOrFloat("PARTICLE_SIZE_MIN", 1),
-			SizeMax:         envOrFloat("PARTICLE_SIZE_MAX", 2.5),
-			ConnectDistance: envOrInt("PARTICLE_CONNECT_DISTANCE", 140),
-			ConnectOpacity:  envOrFloat("PARTICLE_CONNECT_OPACITY", 0.08),
-			PushRange:       envOrInt("PARTICLE_PUSH_RANGE", 180),
-			PushForce:       envOrFloat("PARTICLE_PUSH_FORCE", 0.015),
-			PulseSpeed:      envOrFloat("PARTICLE_PULSE_SPEED", 0.008),
+			Count:           clampInt(envOrInt("PARTICLE_COUNT", 120), 1, 500),
+			Speed:           clampFloat(envOrFloat("PARTICLE_SPEED", 0.3), 0.01, 10),
+			SizeMin:         clampFloat(envOrFloat("PARTICLE_SIZE_MIN", 1), 0.1, 20),
+			SizeMax:         clampFloat(envOrFloat("PARTICLE_SIZE_MAX", 2.5), 0.1, 20),
+			ConnectDistance: clampInt(envOrInt("PARTICLE_CONNECT_DISTANCE", 140), 10, 1000),
+			ConnectOpacity:  clampFloat(envOrFloat("PARTICLE_CONNECT_OPACITY", 0.08), 0, 1),
+			PushRange:       clampInt(envOrInt("PARTICLE_PUSH_RANGE", 180), 10, 1000),
+			PushForce:       clampFloat(envOrFloat("PARTICLE_PUSH_FORCE", 0.015), 0.001, 1),
+			PulseSpeed:      clampFloat(envOrFloat("PARTICLE_PULSE_SPEED", 0.008), 0.0001, 0.1),
 			Color:           envOr("PARTICLE_COLOR", "79,209,197"),
 			ColorAlt:        envOr("PARTICLE_COLOR_ALT", "128,90,213"),
 		},
-	}, nil
+	}
+
+	if cfg.Particles.SizeMax < cfg.Particles.SizeMin {
+		cfg.Particles.SizeMax = cfg.Particles.SizeMin
+	}
+
+	return cfg, nil
 }
 
 func envOr(key, fallback string) string {
@@ -89,6 +96,7 @@ func envOrInt(key string, fallback int) int {
 	}
 	n, err := strconv.Atoi(v)
 	if err != nil {
+		slog.Warn("invalid env var, using default", "key", key, "value", v, "default", fallback)
 		return fallback
 	}
 	return n
@@ -101,7 +109,28 @@ func envOrFloat(key string, fallback float64) float64 {
 	}
 	f, err := strconv.ParseFloat(v, 64)
 	if err != nil {
+		slog.Warn("invalid env var, using default", "key", key, "value", v, "default", fallback)
 		return fallback
 	}
 	return f
+}
+
+func clampInt(v, min, max int) int {
+	if v < min {
+		return min
+	}
+	if v > max {
+		return max
+	}
+	return v
+}
+
+func clampFloat(v, min, max float64) float64 {
+	if v < min {
+		return min
+	}
+	if v > max {
+		return max
+	}
+	return v
 }
