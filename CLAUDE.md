@@ -45,7 +45,7 @@ Key flow: `sync.CloneOrPull` → `loader.LoadFromDir` → `store.Store()` (atomi
 
 ### Template Rendering
 
-`render.Renderer` clones `templates/base.html` per render, then parses the page-specific template into it. Pages inject content via `{{template "content" .}}`. Template functions: `formatDate`, `formatDateShort`, `formatRFC3339`, `join`, `safeHTML`, `truncate`, `currentYear`.
+`render.Renderer` clones `templates/base.html` per render, then parses the page-specific template into it. Pages inject content via `{{template "content" .}}`. Template functions: `formatDate`, `formatDateShort`, `formatRFC3339`, `currentYear`.
 
 ## CI
 
