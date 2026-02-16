@@ -73,11 +73,19 @@ h4 {
 }
 
 .prose h1,
-.prose h2,
-.prose h3,
-.prose h4 {
+.prose h2 {
   margin-top: var(--space-2xl);
   margin-bottom: var(--space-md);
+}
+
+.prose h3 {
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-md);
+}
+
+.prose h4 {
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-sm);
 }
 
 .prose h1:first-child,
@@ -125,6 +133,11 @@ h4 {
 
 .prose em {
   font-style: italic;
+}
+
+.prose p + ul,
+.prose p + ol {
+  margin-top: calc(-1 * var(--space-sm));
 }
 
 .prose ul,
