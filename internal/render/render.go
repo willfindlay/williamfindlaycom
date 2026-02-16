@@ -6,11 +6,13 @@ import (
 	"io"
 	"io/fs"
 	"strings"
+	texttemplate "text/template"
 	"time"
 )
 
 type Renderer struct {
 	templates map[string]*template.Template
+	feedTmpl  *texttemplate.Template
 }
 
 var funcMap = template.FuncMap{
@@ -39,6 +41,24 @@ var funcMap = template.FuncMap{
 	},
 }
 
+var feedFuncMap = texttemplate.FuncMap{
+	"formatRFC3339": func(t time.Time) string {
+		return t.Format(time.RFC3339)
+	},
+	"xmlEscape": xmlEscape,
+}
+
+func xmlEscape(s string) string {
+	r := strings.NewReplacer(
+		"&", "&amp;",
+		"<", "&lt;",
+		">", "&gt;",
+		"\"", "&quot;",
+		"'", "&apos;",
+	)
+	return r.Replace(s)
+}
+
 func New(fsys fs.FS) (*Renderer, error) {
 	base, err := template.New("base").Funcs(funcMap).ParseFS(fsys, "templates/base.html")
 	if err != nil {
@@ -52,7 +72,6 @@ func New(fsys fs.FS) (*Renderer, error) {
 		"templates/projects/list.html",
 		"templates/projects/project.html",
 		"templates/resume.html",
-		"templates/feed.xml",
 		"templates/404.html",
 	}
 
@@ -70,6 +89,12 @@ func New(fsys fs.FS) (*Renderer, error) {
 		r.templates[page] = t
 	}
 
+	feedTmpl, err := texttemplate.New("feed.xml").Funcs(feedFuncMap).ParseFS(fsys, "templates/feed.xml")
+	if err != nil {
+		return nil, fmt.Errorf("parsing feed template: %w", err)
+	}
+	r.feedTmpl = feedTmpl
+
 	return r, nil
 }
 
@@ -82,9 +107,5 @@ func (r *Renderer) Render(w io.Writer, name string, data any) error {
 }
 
 func (r *Renderer) RenderFeed(w io.Writer, data any) error {
-	t, ok := r.templates["templates/feed.xml"]
-	if !ok {
-		return fmt.Errorf("feed template not found")
-	}
-	return t.ExecuteTemplate(w, "feed", data)
+	return r.feedTmpl.ExecuteTemplate(w, "feed", data)
 }
