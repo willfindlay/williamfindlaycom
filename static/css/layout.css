@@ -76,6 +76,7 @@
 .main {
   padding: var(--space-3xl) var(--space-lg);
   min-height: calc(100vh - 200px);
+  transition: opacity var(--transition-fast);
 }
 
 /* Footer */
