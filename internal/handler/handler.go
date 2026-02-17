@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"html/template"
 	"log/slog"
 	"net/http"
 
@@ -27,6 +28,7 @@ type PageData struct {
 	OGType       string
 	OGImage      string
 	Author       string
+	JSONLD       template.HTML
 	ActiveNav    string
 	Particles    config.ParticleConfig
 }

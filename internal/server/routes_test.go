@@ -281,6 +281,32 @@ func TestRoutes_Sitemap(t *testing.T) {
 	}
 }
 
+func TestRoutes_BlogPost(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/blog/test-post")
+	if err != nil {
+		t.Fatalf("GET /blog/test-post: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "application/ld+json") {
+		t.Error("expected JSON-LD script tag in body")
+	}
+	if !strings.Contains(body, "BlogPosting") {
+		t.Error("expected BlogPosting in JSON-LD")
+	}
+	if !strings.Contains(body, `og:type" content="article"`) {
+		t.Error("expected og:type article in body")
+	}
+}
+
 func TestRoutes_Feed(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()

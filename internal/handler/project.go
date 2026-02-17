@@ -24,6 +24,7 @@ func (d *Deps) ProjectList() http.HandlerFunc {
 		data.PageTitle = "Projects"
 		data.Description = "Projects by William Findlay"
 		data.CanonicalURL = d.SiteURL + "/projects"
+		data.JSONLD = buildCollectionPageJSONLD("Projects", data.Description, data.CanonicalURL)
 
 		if store != nil {
 			data.Projects = store.Projects
