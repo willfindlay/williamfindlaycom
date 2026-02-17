@@ -11,8 +11,9 @@ import (
 )
 
 type Renderer struct {
-	templates map[string]*template.Template
-	feedTmpl  *texttemplate.Template
+	templates   map[string]*template.Template
+	feedTmpl    *texttemplate.Template
+	sitemapTmpl *texttemplate.Template
 }
 
 var funcMap = template.FuncMap{
@@ -84,6 +85,12 @@ func New(fsys fs.FS) (*Renderer, error) {
 	}
 	r.feedTmpl = feedTmpl
 
+	sitemapTmpl, err := texttemplate.New("sitemap.xml").Funcs(feedFuncMap).ParseFS(fsys, "templates/sitemap.xml")
+	if err != nil {
+		return nil, fmt.Errorf("parsing sitemap template: %w", err)
+	}
+	r.sitemapTmpl = sitemapTmpl
+
 	return r, nil
 }
 
@@ -97,4 +104,8 @@ func (r *Renderer) Render(w io.Writer, name string, data any) error {
 
 func (r *Renderer) RenderFeed(w io.Writer, data any) error {
 	return r.feedTmpl.ExecuteTemplate(w, "feed", data)
+}
+
+func (r *Renderer) RenderSitemap(w io.Writer, data any) error {
+	return r.sitemapTmpl.ExecuteTemplate(w, "sitemap", data)
 }
