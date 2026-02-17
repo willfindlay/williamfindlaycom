@@ -225,6 +225,34 @@ func TestRoutes_SecurityHeaders(t *testing.T) {
 	}
 }
 
+func TestRoutes_Sitemap(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/sitemap.xml")
+	if err != nil {
+		t.Fatalf("GET /sitemap.xml: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	ct := resp.Header.Get("Content-Type")
+	if !strings.Contains(ct, "xml") {
+		t.Errorf("expected xml content type, got %q", ct)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "<urlset") {
+		t.Error("expected urlset element in body")
+	}
+	if !strings.Contains(body, "/blog/test-post") {
+		t.Error("expected test post URL in sitemap")
+	}
+}
+
 func TestRoutes_Feed(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()

@@ -1,0 +1,27 @@
+{{define "sitemap"}}<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>{{.SiteURL}}</loc>
+    </url>
+    <url>
+        <loc>{{.SiteURL}}/blog</loc>
+    </url>
+    <url>
+        <loc>{{.SiteURL}}/projects</loc>
+    </url>
+    <url>
+        <loc>{{.SiteURL}}/resume</loc>
+    </url>
+    {{range .Posts}}
+    <url>
+        <loc>{{$.SiteURL}}/blog/{{.Slug}}</loc>
+        <lastmod>{{formatRFC3339 .Date}}</lastmod>
+    </url>
+    {{end}}
+    {{range .Projects}}
+    <url>
+        <loc>{{$.SiteURL}}/projects/{{.Slug}}</loc>
+        <lastmod>{{formatRFC3339 .Date}}</lastmod>
+    </url>
+    {{end}}
+</urlset>{{end}}
