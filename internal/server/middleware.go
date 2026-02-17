@@ -32,7 +32,7 @@ func securityHeaders(next http.Handler) http.Handler {
 
 func cacheStatic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set("Cache-Control", "public, max-age=3600, s-maxage=300")
 		next.ServeHTTP(w, r)
 	})
 }
