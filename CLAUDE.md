@@ -55,6 +55,8 @@ Four GitHub Actions workflows run on push/PR to main:
 - **fmt**: `gofmt -l .` (fails if any file is unformatted)
 - **docker**: builds image, pushes to `docker.williamfindlay.com` on main
 
+**Branch protection**: main requires PRs with passing `test`, `lint`, and `fmt` checks. No direct pushes. Admin bypass is enabled for emergencies.
+
 ## Configuration
 
 All config via environment variables (see `internal/config/`). Key ones:
