@@ -24,6 +24,9 @@ type PageData struct {
 	PageTitle    string
 	Description  string
 	CanonicalURL string
+	OGType       string
+	OGImage      string
+	Author       string
 	ActiveNav    string
 	Particles    config.ParticleConfig
 }
@@ -32,6 +35,8 @@ func (d *Deps) basePage(activeNav string) PageData {
 	return PageData{
 		SiteTitle: d.SiteTitle,
 		SiteURL:   d.SiteURL,
+		OGType:    "website",
+		Author:    "William Findlay",
 		ActiveNav: activeNav,
 		Particles: d.Particles,
 	}

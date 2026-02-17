@@ -8,10 +8,19 @@
 
     {{if .CanonicalURL}}<link rel="canonical" href="{{.CanonicalURL}}">{{end}}
 
+    <meta name="author" content="{{.Author}}">
+
     <meta property="og:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}{{.SiteTitle}}{{end}}">
     <meta property="og:description" content="{{.Description}}">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="{{.OGType}}">
+    <meta property="og:locale" content="en_US">
     {{if .CanonicalURL}}<meta property="og:url" content="{{.CanonicalURL}}">{{end}}
+    {{if .OGImage}}<meta property="og:image" content="{{.OGImage}}">{{end}}
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{if .PageTitle}}{{.PageTitle}}{{else}}{{.SiteTitle}}{{end}}">
+    <meta name="twitter:description" content="{{.Description}}">
+    {{if .OGImage}}<meta name="twitter:image" content="{{.OGImage}}">{{end}}
 
     <link rel="alternate" type="application/atom+xml" title="{{.SiteTitle}}" href="/feed.xml">
 

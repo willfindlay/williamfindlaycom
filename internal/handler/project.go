@@ -23,6 +23,7 @@ func (d *Deps) ProjectList() http.HandlerFunc {
 		data := projectListData{PageData: d.basePage("projects")}
 		data.PageTitle = "Projects"
 		data.Description = "Projects by William Findlay"
+		data.CanonicalURL = d.SiteURL + "/projects"
 
 		if store != nil {
 			data.Projects = store.Projects
@@ -51,6 +52,7 @@ func (d *Deps) ProjectDetail() http.HandlerFunc {
 		data := projectDetailData{PageData: d.basePage("projects"), Project: proj}
 		data.PageTitle = proj.Title
 		data.Description = proj.Description
+		data.CanonicalURL = d.SiteURL + "/projects/" + slug
 
 		d.render(w, "templates/projects/project.html", data)
 	}

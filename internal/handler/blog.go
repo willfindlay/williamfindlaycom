@@ -26,6 +26,7 @@ func (d *Deps) BlogList() http.HandlerFunc {
 		data := blogListData{PageData: d.basePage("blog")}
 		data.PageTitle = "Blog"
 		data.Description = "Blog posts by William Findlay"
+		data.CanonicalURL = d.SiteURL + "/blog"
 
 		if store != nil {
 			tag := r.URL.Query().Get("tag")
@@ -74,6 +75,7 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 		data.PageTitle = post.Title
 		data.Description = post.Description
 		data.CanonicalURL = d.SiteURL + "/blog/" + slug
+		data.OGType = "article"
 
 		d.render(w, "templates/blog/post.html", data)
 	}

@@ -22,6 +22,7 @@ func (d *Deps) Home() http.HandlerFunc {
 		store := d.Store.Load()
 
 		data := homeData{PageData: d.basePage("")}
+		data.CanonicalURL = d.SiteURL
 		data.Description = "Personal website of William Findlay — software engineer, security researcher, and systems thinker."
 
 		if store != nil {

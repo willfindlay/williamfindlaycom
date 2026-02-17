@@ -18,6 +18,7 @@ func (d *Deps) Resume() http.HandlerFunc {
 		data := resumeData{PageData: d.basePage("resume")}
 		data.PageTitle = "Resume"
 		data.Description = "Resume of William Findlay"
+		data.CanonicalURL = d.SiteURL + "/resume"
 
 		if store != nil {
 			data.Resume = store.Resume
