@@ -31,6 +31,7 @@ type PageData struct {
 	JSONLD       template.HTML
 	ActiveNav    string
 	Particles    config.ParticleConfig
+	Formation    string
 }
 
 func (d *Deps) basePage(activeNav string) PageData {

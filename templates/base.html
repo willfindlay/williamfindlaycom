@@ -52,7 +52,7 @@
       data-pulse-speed="{{.PulseSpeed}}"
       data-color="{{.Color}}"
       data-color-alt="{{.ColorAlt}}"
-      {{- end}}></canvas>
+      {{- end}}{{- if .Formation}} data-formation="{{.Formation}}"{{end}}></canvas>
 
     <header class="site-header">
         <nav class="nav container">
