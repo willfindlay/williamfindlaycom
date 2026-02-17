@@ -225,6 +225,34 @@ func TestRoutes_SecurityHeaders(t *testing.T) {
 	}
 }
 
+func TestRoutes_Robots(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/robots.txt")
+	if err != nil {
+		t.Fatalf("GET /robots.txt: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	ct := resp.Header.Get("Content-Type")
+	if !strings.Contains(ct, "text/plain") {
+		t.Errorf("expected text/plain content type, got %q", ct)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "User-agent: *") {
+		t.Error("expected User-agent directive in body")
+	}
+	if !strings.Contains(body, "Sitemap:") {
+		t.Error("expected Sitemap directive in body")
+	}
+}
+
 func TestRoutes_Sitemap(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()

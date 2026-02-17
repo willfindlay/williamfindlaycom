@@ -20,6 +20,7 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /resume", s.deps.Resume())
 	mux.HandleFunc("GET /feed.xml", s.deps.Feed())
 	mux.HandleFunc("GET /sitemap.xml", s.deps.Sitemap())
+	mux.HandleFunc("GET /robots.txt", s.deps.Robots())
 
 	staticFS, err := fs.Sub(s.static, "static")
 	if err != nil {
