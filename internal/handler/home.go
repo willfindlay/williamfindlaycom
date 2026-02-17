@@ -24,6 +24,7 @@ func (d *Deps) Home() http.HandlerFunc {
 		data := homeData{PageData: d.basePage("")}
 		data.CanonicalURL = d.SiteURL
 		data.Description = "Personal website of William Findlay — software engineer, security researcher, and systems thinker."
+		data.JSONLD = buildHomeJSONLD(d.SiteTitle, d.SiteURL)
 
 		if store != nil {
 			limit := 5

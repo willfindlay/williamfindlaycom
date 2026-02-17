@@ -27,6 +27,7 @@ func (d *Deps) BlogList() http.HandlerFunc {
 		data.PageTitle = "Blog"
 		data.Description = "Blog posts by William Findlay"
 		data.CanonicalURL = d.SiteURL + "/blog"
+		data.JSONLD = buildCollectionPageJSONLD("Blog", data.Description, data.CanonicalURL)
 
 		if store != nil {
 			tag := r.URL.Query().Get("tag")
@@ -76,6 +77,7 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 		data.Description = post.Description
 		data.CanonicalURL = d.SiteURL + "/blog/" + slug
 		data.OGType = "article"
+		data.JSONLD = buildBlogPostingJSONLD(post, d.SiteURL)
 
 		d.render(w, "templates/blog/post.html", data)
 	}
