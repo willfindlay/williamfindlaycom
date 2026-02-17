@@ -38,6 +38,7 @@ func (d *Deps) basePage(activeNav string) PageData {
 		SiteTitle: d.SiteTitle,
 		SiteURL:   d.SiteURL,
 		OGType:    "website",
+		OGImage:   d.SiteURL + "/static/og-image.png",
 		Author:    "William Findlay",
 		ActiveNav: activeNav,
 		Particles: d.Particles,
