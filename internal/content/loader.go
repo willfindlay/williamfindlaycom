@@ -15,6 +15,7 @@ import (
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
 	"go.abhg.dev/goldmark/frontmatter"
+	"gopkg.in/yaml.v3"
 )
 
 var md = goldmark.New(
@@ -148,7 +149,7 @@ func loadProjects(dir string, store *ContentStore) error {
 }
 
 func loadResume(dir string, store *ContentStore) error {
-	path := filepath.Join(dir, "resume.md")
+	path := filepath.Join(dir, "resume.yaml")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -157,13 +158,84 @@ func loadResume(dir string, store *ContentStore) error {
 		return err
 	}
 
-	var buf bytes.Buffer
-	if err := md.Convert(data, &buf); err != nil {
-		return fmt.Errorf("rendering resume: %w", err)
+	var resume Resume
+	if err := yaml.Unmarshal(data, &resume); err != nil {
+		return fmt.Errorf("parsing resume YAML: %w", err)
 	}
 
-	store.Resume = &Resume{Content: template.HTML(buf.String())}
+	// Render summary inline markdown.
+	resume.Summary = renderInlineMarkdown(resume.RawSummary)
+
+	// Compute date ranges and render bullets for entry-based sections.
+	for i := range resume.Experience {
+		renderEntry(&resume.Experience[i])
+	}
+	for i := range resume.Education {
+		renderEntry(&resume.Education[i])
+	}
+	for i := range resume.Research {
+		renderEntry(&resume.Research[i])
+	}
+
+	// Render presentation venues and dates.
+	for i := range resume.Presentations {
+		resume.Presentations[i].Venue = renderInlineMarkdown(resume.Presentations[i].RawVenue)
+		resume.Presentations[i].DateFormatted = resume.Presentations[i].Date.FormatDate()
+	}
+
+	// Render publication items as inline markdown.
+	for i := range resume.Publications {
+		sec := &resume.Publications[i]
+		sec.Items = make([]template.HTML, len(sec.RawItems))
+		for j, raw := range sec.RawItems {
+			sec.Items[j] = renderInlineMarkdown(raw)
+		}
+	}
+
+	// Render open source bullets as inline markdown.
+	for i := range resume.OpenSource {
+		for j := range resume.OpenSource[i].Projects {
+			p := &resume.OpenSource[i].Projects[j]
+			p.Bullets = make([]template.HTML, len(p.RawBullets))
+			for k, raw := range p.RawBullets {
+				p.Bullets[k] = renderInlineMarkdown(raw)
+			}
+		}
+	}
+
+	store.Resume = &resume
 	return nil
+}
+
+func renderEntry(e *ResumeEntry) {
+	e.DateRange = FormatDateRange(e.Start, e.End)
+	renderBullets(e.Bullets)
+}
+
+func renderBullets(bullets []ResumeBullet) {
+	for i := range bullets {
+		b := &bullets[i]
+		b.Text = renderInlineMarkdown(b.RawText)
+		b.Sub = make([]ResumeBullet, len(b.RawSub))
+		copy(b.Sub, b.RawSub)
+		renderBullets(b.Sub)
+	}
+}
+
+// renderInlineMarkdown converts a markdown string to HTML, stripping all
+// <p> tags that goldmark adds so the result can be used inline.
+func renderInlineMarkdown(s string) template.HTML {
+	if s == "" {
+		return ""
+	}
+	var buf bytes.Buffer
+	if err := md.Convert([]byte(s), &buf); err != nil {
+		return template.HTML(template.HTMLEscapeString(s))
+	}
+	out := strings.TrimSpace(buf.String())
+	out = strings.ReplaceAll(out, "<p>", "")
+	out = strings.ReplaceAll(out, "</p>", "")
+	return template.HTML(strings.TrimSpace(out))
 }
 
 func renderMarkdown(src []byte, meta any) (template.HTML, error) {

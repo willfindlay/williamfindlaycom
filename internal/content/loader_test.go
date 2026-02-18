@@ -192,11 +192,33 @@ func TestLoadFromDir_Resume(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	resume := `# William Findlay
-
-Software engineer.
+	resume := `name: "William Findlay"
+tagline: "Software Engineer"
+summary: "Senior Engineer at [Acme](https://example.com)."
+experience:
+  - title: "Senior Engineer"
+    organization: "Acme Corp"
+    location: "Remote"
+    start: { year: 2024 }
+    bullets:
+      - "Built things"
+      - text: "Led team"
+        sub:
+          - "Mentored engineers"
+          - text: "Deep nested"
+            sub:
+              - "Level 3"
+education:
+  - title: "B.Sc. Computer Science"
+    organization: "Test University"
+    location: "Testville"
+    start: { month: 9, year: 2015 }
+    end: { month: 4, year: 2020 }
+skills:
+  - category: "Go"
+    detail: "stdlib, testing"
 `
-	if err := os.WriteFile(filepath.Join(resumeDir, "resume.md"), []byte(resume), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(resumeDir, "resume.yaml"), []byte(resume), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -208,11 +230,34 @@ Software engineer.
 	if store.Resume == nil {
 		t.Fatal("expected resume, got nil")
 	}
-	if store.Resume.Content == "" {
-		t.Error("expected rendered resume content, got empty")
+	if store.Resume.Name != "William Findlay" {
+		t.Errorf("expected name 'William Findlay', got %q", store.Resume.Name)
 	}
-	if !strings.Contains(string(store.Resume.Content), "<h1") {
-		t.Error("expected <h1 in resume output")
+	if store.Resume.Summary == "" {
+		t.Error("expected rendered summary, got empty")
+	}
+	if !strings.Contains(string(store.Resume.Summary), "<a ") {
+		t.Error("expected link in rendered summary")
+	}
+	if len(store.Resume.Experience) != 1 {
+		t.Fatalf("expected 1 experience entry, got %d", len(store.Resume.Experience))
+	}
+	exp := store.Resume.Experience[0]
+	if exp.DateRange != "2024 – Present" {
+		t.Errorf("expected date range '2024 – Present', got %q", exp.DateRange)
+	}
+	if len(exp.Bullets) != 2 {
+		t.Fatalf("expected 2 bullets, got %d", len(exp.Bullets))
+	}
+	if len(exp.Bullets[1].Sub) != 2 {
+		t.Fatalf("expected 2 sub-bullets, got %d", len(exp.Bullets[1].Sub))
+	}
+	if len(exp.Bullets[1].Sub[1].Sub) != 1 {
+		t.Fatalf("expected 1 nested sub-bullet, got %d", len(exp.Bullets[1].Sub[1].Sub))
+	}
+	edu := store.Resume.Education[0]
+	if edu.DateRange != "Sept. 2015 – Apr. 2020" {
+		t.Errorf("expected date range 'Sept. 2015 – Apr. 2020', got %q", edu.DateRange)
 	}
 }
 
