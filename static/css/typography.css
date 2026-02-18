@@ -146,6 +146,11 @@ h4 {
   padding-left: var(--space-xl);
 }
 
+.prose li > ul,
+.prose li > ol {
+  margin-bottom: 0;
+}
+
 .prose ul {
   list-style: disc;
 }
