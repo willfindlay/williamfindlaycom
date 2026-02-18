@@ -286,6 +286,228 @@
   max-width: 800px;
 }
 
+.resume a:not(.resume-oss__icon) {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent-dim);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.resume a:not(.resume-oss__icon):hover {
+  text-decoration-color: var(--color-accent);
+}
+
+.resume__header {
+  margin-bottom: var(--space-lg);
+}
+
+.resume__header h1 {
+  margin-bottom: var(--space-xs);
+}
+
+.resume__tagline {
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.resume__summary {
+  margin-bottom: var(--space-2xl);
+  line-height: 1.8;
+}
+
+.resume__section {
+  margin-bottom: var(--space-2xl);
+}
+
+.resume__section-title {
+  margin-bottom: var(--space-lg);
+  position: relative;
+  display: inline-block;
+}
+
+.resume__section-title::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 32px;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+}
+
+.resume__subsection-title {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  margin-bottom: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+/* Resume Entry (Experience, Education, Research, Presentations) */
+.resume-entry {
+  margin-bottom: var(--space-lg);
+}
+
+.resume-entry__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.resume-entry__title {
+  font-weight: 700;
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 1rem;
+}
+
+.resume-entry__dates {
+  color: var(--color-text-muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.825rem;
+  white-space: nowrap;
+}
+
+.resume-entry__note {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.resume-entry__org {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: var(--space-sm);
+}
+
+.resume-entry ul {
+  list-style: disc;
+  margin-top: var(--space-xs);
+  margin-bottom: 0;
+  padding-left: var(--space-lg);
+}
+
+.resume-entry li {
+  margin-bottom: var(--space-xs);
+  font-size: 0.95rem;
+}
+
+.resume-entry li::marker {
+  color: var(--color-accent);
+}
+
+.resume-entry li ul {
+  margin-top: var(--space-xs);
+}
+
+/* Resume Skills (definition list) */
+.resume-skills > div {
+  margin-bottom: var(--space-xs);
+}
+
+.resume-skills dt {
+  display: inline;
+  font-weight: 700;
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 0.95rem;
+}
+
+.resume-skills dd {
+  display: inline;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Resume Awards */
+.resume-awards {
+  list-style: disc;
+  padding-left: var(--space-lg);
+}
+
+.resume-awards li {
+  margin-bottom: var(--space-xs);
+  font-size: 0.95rem;
+}
+
+.resume-awards li::marker {
+  color: var(--color-accent);
+}
+
+/* Resume Publications */
+.resume-publications {
+  list-style: decimal;
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.resume-publications li {
+  margin-bottom: var(--space-sm);
+  font-size: 0.95rem;
+}
+
+.resume-publications li::marker {
+  color: var(--color-accent);
+}
+
+/* Resume Open Source */
+.resume-oss {
+  margin-bottom: var(--space-lg);
+}
+
+.resume-oss__header {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.resume-oss__name {
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 1rem;
+}
+
+.resume-oss__tagline {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.resume-oss__icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  transition: color var(--transition-fast);
+}
+
+.resume-oss__icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  vertical-align: baseline;
+}
+
+.resume-oss__icon:hover {
+  color: var(--color-accent);
+}
+
+.resume-oss ul {
+  list-style: disc;
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-xs);
+}
+
+.resume-oss li {
+  margin-bottom: var(--space-xs);
+  font-size: 0.95rem;
+}
+
+.resume-oss li::marker {
+  color: var(--color-accent);
+}
+
+
 /* Responsive */
 @media (max-width: 768px) {
   .post-grid {
