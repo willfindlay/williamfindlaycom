@@ -118,3 +118,19 @@ main {
   --color-prettylights-syntax-sublimelinter-gutter-mark: #334155;
   --color-prettylights-syntax-constant-other-reference-link: #8be9fd;
 }
+
+/* Compact reactions: inline at top instead of centered block */
+.gsc-reactions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  gap: 0.25rem;
+}
+
+.gsc-reactions-count {
+  display: none;
+}
+
+.gsc-reactions button {
+  padding: 0.125rem 0.375rem;
+}
