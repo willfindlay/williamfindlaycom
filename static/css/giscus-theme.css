@@ -131,7 +131,7 @@ main {
   display: none;
 }
 
-.gsc-reactions > div {
+#__next .gsc-reactions > div {
   flex: none;
   justify-content: flex-end;
   margin-top: 0;
