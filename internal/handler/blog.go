@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/willfindlay/williamfindlaycom/internal/config"
 	"github.com/willfindlay/williamfindlaycom/internal/content"
 )
 
@@ -16,7 +17,8 @@ type blogListData struct {
 
 type blogPostData struct {
 	PageData
-	Post *content.BlogPost
+	Post   *content.BlogPost
+	Giscus config.GiscusConfig
 }
 
 func (d *Deps) BlogList() http.HandlerFunc {
@@ -72,7 +74,7 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 			return
 		}
 
-		data := blogPostData{PageData: d.basePage("blog"), Post: post}
+		data := blogPostData{PageData: d.basePage("blog"), Post: post, Giscus: d.Giscus}
 		data.PageTitle = post.Title
 		data.Description = post.Description
 		data.CanonicalURL = d.SiteURL + "/blog/" + slug

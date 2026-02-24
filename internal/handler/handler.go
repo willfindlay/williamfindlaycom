@@ -17,6 +17,7 @@ type Deps struct {
 	SiteTitle string
 	SiteURL   string
 	Particles config.ParticleConfig
+	Giscus    config.GiscusConfig
 }
 
 type PageData struct {

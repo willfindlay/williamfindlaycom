@@ -32,5 +32,18 @@
             </a>
         </div>
     </footer>
+    {{if .Giscus.Repo}}
+    <section class="comments">
+        <h2 class="comments__heading">Comments</h2>
+        <div class="giscus-container"
+             data-repo="{{.Giscus.Repo}}"
+             data-repo-id="{{.Giscus.RepoID}}"
+             data-category="{{.Giscus.Category}}"
+             data-category-id="{{.Giscus.CategoryID}}"
+             data-theme="{{.SiteURL}}/static/css/giscus-theme.css">
+            <div class="giscus"></div>
+        </div>
+    </section>
+    {{end}}
 </article>
 {{end}}
