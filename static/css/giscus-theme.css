@@ -119,12 +119,18 @@ main {
   --color-prettylights-syntax-constant-other-reference-link: #8be9fd;
 }
 
-/* Compact reactions: inline at top instead of centered block */
+/* Compact reactions: absolute-position the smiley at the top-right of
+   the widget so it sits on the same row as the "N comments" header. */
+.gsc-main {
+  position: relative;
+}
+
 .gsc-reactions {
-  display: flex;
-  justify-content: flex-end;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
   padding: 0;
-  gap: 0.25rem;
 }
 
 .gsc-reactions-count {
@@ -139,4 +145,15 @@ main {
 
 .gsc-reactions button {
   padding: 0.125rem 0.375rem;
+}
+
+/* Push Oldest/Newest buttons left so the smiley doesn't overlap */
+.gsc-right-header {
+  margin-right: 2.5rem;
+}
+
+/* Open the reaction picker leftward so it doesn't clip the right edge */
+.gsc-reactions-popover.left {
+  left: auto !important;
+  right: 0 !important;
 }
