@@ -1,0 +1,120 @@
+/*
+ * Custom Giscus theme for williamfindlay.com
+ * Maps GitHub Primer CSS custom properties to site design tokens.
+ * Loaded cross-origin inside the Giscus iframe via data-theme attribute.
+ */
+
+main {
+  /* Canvas / backgrounds */
+  --color-canvas-default: #0a0e17;
+  --color-canvas-overlay: #151d2e;
+  --color-canvas-inset: #080c14;
+  --color-canvas-subtle: #111827;
+
+  /* Borders */
+  --color-border-default: #1e293b;
+  --color-border-muted: #172033;
+  --color-border-overlay: #2d3f56;
+
+  /* Foreground / text */
+  --color-fg-default: #c8d1dc;
+  --color-fg-muted: #7e8fa3;
+  --color-fg-subtle: #576478;
+
+  /* Neutral */
+  --color-neutral-muted: rgba(100, 116, 139, 0.25);
+
+  /* Accent (teal) */
+  --color-accent-fg: #4fd1c5;
+  --color-accent-emphasis: #38b2ac;
+  --color-accent-muted: rgba(79, 209, 197, 0.35);
+  --color-accent-subtle: rgba(79, 209, 197, 0.12);
+
+  /* Status colors */
+  --color-success-fg: #4fd1c5;
+  --color-attention-fg: #d4a054;
+  --color-attention-muted: rgba(212, 160, 84, 0.35);
+  --color-attention-subtle: rgba(212, 160, 84, 0.12);
+  --color-danger-fg: #e87272;
+  --color-danger-muted: rgba(232, 114, 114, 0.35);
+  --color-danger-subtle: rgba(232, 114, 114, 0.10);
+
+  /* Buttons, default */
+  --color-btn-text: #c8d1dc;
+  --color-btn-bg: #111827;
+  --color-btn-border: #1e293b;
+  --color-btn-shadow: 0 0 transparent;
+  --color-btn-inset-shadow: 0 0 transparent;
+  --color-btn-hover-bg: #1a2332;
+  --color-btn-hover-border: #2d3f56;
+  --color-btn-active-bg: #0f1520;
+  --color-btn-active-border: #2d3f56;
+  --color-btn-selected-bg: #0a0e17;
+
+  /* Buttons, primary (teal) */
+  --color-btn-primary-text: #0a0e17;
+  --color-btn-primary-bg: #4fd1c5;
+  --color-btn-primary-border: rgba(79, 209, 197, 0.4);
+  --color-btn-primary-shadow: 0 0 transparent;
+  --color-btn-primary-inset-shadow: 0 0 transparent;
+  --color-btn-primary-hover-bg: #38b2ac;
+  --color-btn-primary-hover-border: rgba(79, 209, 197, 0.5);
+  --color-btn-primary-selected-bg: #2c9a90;
+  --color-btn-primary-selected-shadow: 0 0 transparent;
+  --color-btn-primary-disabled-text: rgba(10, 14, 23, 0.5);
+  --color-btn-primary-disabled-bg: rgba(79, 209, 197, 0.4);
+  --color-btn-primary-disabled-border: rgba(79, 209, 197, 0.15);
+
+  /* Action list (dropdown items) */
+  --color-action-list-item-default-hover-bg: rgba(94, 118, 148, 0.12);
+
+  /* Segmented control (Write / Preview tabs) */
+  --color-segmented-control-bg: rgba(100, 116, 139, 0.10);
+  --color-segmented-control-button-bg: #0a0e17;
+  --color-segmented-control-button-selected-border: #2d3f56;
+
+  /* Gray scale for reactions, misc */
+  --color-scale-gray-7: #1a2332;
+  --color-scale-gray-8: #111827;
+  --color-scale-gray-9: #0a0e17;
+  --color-scale-blue-8: rgba(79, 209, 197, 0.15);
+
+  /* Reaction buttons */
+  --color-social-reaction-bg-hover: #1a2332;
+  --color-social-reaction-bg-reacted-hover: rgba(79, 209, 197, 0.15);
+
+  /* Shadows */
+  --color-primer-shadow-inset: 0 0 transparent;
+
+  /* Syntax highlighting (Dracula-adjacent, matching site code blocks) */
+  --color-prettylights-syntax-comment: #576478;
+  --color-prettylights-syntax-constant: #bd93f9;
+  --color-prettylights-syntax-entity: #8be9fd;
+  --color-prettylights-syntax-storage-modifier-import: #c8d1dc;
+  --color-prettylights-syntax-entity-tag: #50fa7b;
+  --color-prettylights-syntax-keyword: #ff79c6;
+  --color-prettylights-syntax-string: #f1fa8c;
+  --color-prettylights-syntax-variable: #ffb86c;
+  --color-prettylights-syntax-brackethighlighter-unmatched: #e87272;
+  --color-prettylights-syntax-invalid-illegal-text: #c8d1dc;
+  --color-prettylights-syntax-invalid-illegal-bg: #6b1a1a;
+  --color-prettylights-syntax-carriage-return-text: #c8d1dc;
+  --color-prettylights-syntax-carriage-return-bg: #6b1a1a;
+  --color-prettylights-syntax-string-regexp: #50fa7b;
+  --color-prettylights-syntax-markup-list: #f1fa8c;
+  --color-prettylights-syntax-markup-heading: #4fd1c5;
+  --color-prettylights-syntax-markup-italic: #c8d1dc;
+  --color-prettylights-syntax-markup-bold: #c8d1dc;
+  --color-prettylights-syntax-markup-deleted-text: #ffa0a0;
+  --color-prettylights-syntax-markup-deleted-bg: #3d1010;
+  --color-prettylights-syntax-markup-inserted-text: #7dffb3;
+  --color-prettylights-syntax-markup-inserted-bg: #0a3020;
+  --color-prettylights-syntax-markup-changed-text: #ffcc80;
+  --color-prettylights-syntax-markup-changed-bg: #3d2000;
+  --color-prettylights-syntax-markup-ignored-text: #c8d1dc;
+  --color-prettylights-syntax-markup-ignored-bg: rgba(79, 209, 197, 0.2);
+  --color-prettylights-syntax-meta-diff-range: #bd93f9;
+  --color-prettylights-syntax-brackethighlighter-angle: #576478;
+  --color-prettylights-syntax-sublimelinter-gutter-mark: #334155;
+  --color-prettylights-syntax-constant-other-reference-link: #8be9fd;
+}

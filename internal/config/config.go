@@ -22,6 +22,13 @@ type ParticleConfig struct {
 	ColorAlt        string // "r,g,b"
 }
 
+type GiscusConfig struct {
+	Repo       string
+	RepoID     string
+	Category   string
+	CategoryID string
+}
+
 type Config struct {
 	Port              string
 	ContentRepoURL    string
@@ -33,6 +40,7 @@ type Config struct {
 	SiteURL           string
 	DevMode           bool
 	Particles         ParticleConfig
+	Giscus            GiscusConfig
 }
 
 func Load() (*Config, error) {
@@ -73,6 +81,13 @@ func Load() (*Config, error) {
 			Color:           envOr("PARTICLE_COLOR", "79,209,197"),
 			ColorAlt:        envOr("PARTICLE_COLOR_ALT", "128,90,213"),
 		},
+	}
+
+	cfg.Giscus = GiscusConfig{
+		Repo:       os.Getenv("GISCUS_REPO"),
+		RepoID:     os.Getenv("GISCUS_REPO_ID"),
+		Category:   os.Getenv("GISCUS_CATEGORY"),
+		CategoryID: os.Getenv("GISCUS_CATEGORY_ID"),
 	}
 
 	if cfg.Particles.SizeMax < cfg.Particles.SizeMin {

@@ -36,6 +36,7 @@ func New(cfg *config.Config, embedded fs.FS) (*Server, error) {
 		SiteTitle: cfg.SiteTitle,
 		SiteURL:   cfg.SiteURL,
 		Particles: cfg.Particles,
+		Giscus:    cfg.Giscus,
 	}
 
 	return &Server{
