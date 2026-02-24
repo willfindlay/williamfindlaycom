@@ -119,10 +119,10 @@ main {
   --color-prettylights-syntax-constant-other-reference-link: #8be9fd;
 }
 
-/* Inline reactions with the "N comments" header row.
+/* Reactions on their own row above the comment count.
    Uses display:contents to flatten .gsc-reactions, .gsc-comments, and
    .gsc-header so their children become direct flex items of .gsc-main.
-   Order: [1 comment] [smiley + pills] ... [Oldest/Newest] */
+   Order: [smiley + pills] (full row) / [1 comment ... Oldest/Newest] */
 .gsc-main {
   display: flex !important;
   flex-direction: row !important;
@@ -141,18 +141,19 @@ main {
   display: none !important;
 }
 
-#__next .gsc-left-header {
+#__next .gsc-reactions > div {
   order: 1;
   flex: none;
-}
-
-#__next .gsc-reactions > div {
-  order: 2;
-  flex: none;
+  width: 100%;
   justify-content: flex-start;
   margin-top: 0;
-  margin-left: 0.5rem;
+  padding: 0;
   gap: 0.25rem;
+}
+
+#__next .gsc-left-header {
+  order: 2;
+  flex: none;
 }
 
 .gsc-right-header {
