@@ -15,6 +15,7 @@ type BlogPost struct {
 	Description string        `yaml:"description"`
 	Tags        []string      `yaml:"tags"`
 	Content     template.HTML // rendered markdown
+	PlainText   string        // raw markdown body (frontmatter stripped), for search
 }
 
 type Project struct {
