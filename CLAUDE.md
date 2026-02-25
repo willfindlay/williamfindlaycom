@@ -25,6 +25,18 @@ goimports -w .        # format (preferred over gofmt)
 gofmt -l .            # check formatting (used in CI)
 ```
 
+## Manual Testing
+
+```bash
+# From a worktree (where .env lives in the main repo)
+make run ENV_FILE=/home/will/documents/projects/williamfindlaycom/.env
+
+# Tear down
+make stop
+```
+
+Use Playwright MCP tools (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`) to interact with `http://localhost:8080` for visual verification. The `/e2e` skill automates this workflow.
+
 ## Architecture
 
 Go web server for williamfindlay.com. Stdlib `net/http` with Go 1.22+ routing patterns, no third-party router.
