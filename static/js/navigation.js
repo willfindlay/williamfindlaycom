@@ -187,4 +187,130 @@
   window.addEventListener("popstate", () => {
     navigate(location.href, false);
   });
+
+  // Client-side blog search
+
+  function escapeHTML(s) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderPostCard(post, featured) {
+    const tagsHTML = post.tags?.length
+      ? `<div class="card__tags">${post.tags.map((t) => `<span class="tag">${escapeHTML(t)}</span>`).join("")}</div>`
+      : "";
+    return `<article class="card${featured ? " card--featured" : ""}" data-slug="${escapeHTML(post.slug)}">
+        <a href="/blog/${escapeHTML(post.slug)}" class="card__link">
+            <time class="card__date" datetime="${escapeHTML(post.dateShort)}">${escapeHTML(post.date)}</time>
+            <h3 class="card__title">${escapeHTML(post.title)}</h3>
+            <p class="card__description">${escapeHTML(post.description)}</p>
+            ${tagsHTML}
+        </a>
+    </article>`;
+  }
+
+  function getBlogPosts() {
+    const el = document.getElementById("blog-posts-data");
+    if (!el) return null;
+    try {
+      return JSON.parse(el.textContent);
+    } catch {
+      return null;
+    }
+  }
+
+  function filterBlogPosts(posts, query) {
+    const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return posts;
+    return posts.filter((p) => {
+      const text = [p.title, p.description, ...(p.tags || [])]
+        .join(" ")
+        .toLowerCase();
+      return terms.every((t) => text.includes(t));
+    });
+  }
+
+  function applyBlogSearch(query) {
+    const posts = getBlogPosts();
+    if (!posts) return;
+
+    const searchSubtitle = document.getElementById("search-subtitle");
+    const searchSubtitleQuery = document.getElementById(
+      "search-subtitle-query",
+    );
+    const searchClear = document.getElementById("search-clear");
+    const tagSubtitle = document.getElementById("tag-subtitle");
+    const tagClear = document.getElementById("tag-clear");
+    const tagFilter = document.getElementById("tag-filter");
+    const postGrid = document.querySelector(".post-grid");
+    const emptyState = document.getElementById("empty-state");
+
+    if (!postGrid) return;
+
+    const trimmed = query.trim();
+    const filtered = trimmed ? filterBlogPosts(posts, trimmed) : posts;
+
+    // Update header elements
+    if (trimmed) {
+      if (searchSubtitle) {
+        searchSubtitleQuery.textContent = trimmed;
+        searchSubtitle.hidden = false;
+      }
+      if (searchClear) searchClear.hidden = false;
+      if (tagSubtitle) tagSubtitle.hidden = true;
+      if (tagClear) tagClear.hidden = true;
+      if (tagFilter) tagFilter.hidden = true;
+    } else {
+      if (searchSubtitle) searchSubtitle.hidden = true;
+      if (searchClear) searchClear.hidden = true;
+      if (tagFilter) tagFilter.hidden = false;
+    }
+
+    // Rebuild grid (all values come from server-rendered JSON, escaped via escapeHTML)
+    postGrid.innerHTML = filtered // eslint-disable-line no-unsanitized/property
+      .map((p, i) => renderPostCard(p, i === 0 && !trimmed))
+      .join("");
+
+    // Empty state
+    if (emptyState) {
+      if (filtered.length === 0) {
+        emptyState.textContent = trimmed
+          ? `No posts matching "${trimmed}".`
+          : "No posts yet.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    // Update URL without triggering navigation
+    const url = new URL("/blog", location.origin);
+    if (trimmed) url.searchParams.set("q", trimmed);
+    history.replaceState(null, "", url.toString());
+  }
+
+  // Delegated input handler for blog search
+  document.addEventListener("input", (e) => {
+    if (
+      e.target.matches('.search-bar input[name="q"]') &&
+      document.getElementById("blog-posts-data")
+    ) {
+      applyBlogSearch(e.target.value);
+    }
+  });
+
+  // Prevent form submit from doing a full page reload when JS is active
+  document.addEventListener("submit", (e) => {
+    if (
+      e.target.matches(".search-bar") &&
+      document.getElementById("blog-posts-data")
+    ) {
+      e.preventDefault();
+      const input = e.target.querySelector('input[name="q"]');
+      if (input) applyBlogSearch(input.value);
+    }
+  });
 })();
