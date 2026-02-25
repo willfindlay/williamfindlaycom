@@ -307,6 +307,49 @@ func TestRoutes_BlogPost(t *testing.T) {
 	}
 }
 
+func TestRoutes_BlogSearch(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/blog?q=test")
+	if err != nil {
+		t.Fatalf("GET /blog?q=test: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "Test Post") {
+		t.Error("expected search results to contain 'Test Post'")
+	}
+	if !strings.Contains(body, `value="test"`) {
+		t.Error("expected search input to preserve query value")
+	}
+}
+
+func TestRoutes_BlogSearchNoResults(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/blog?q=nonexistent")
+	if err != nil {
+		t.Fatalf("GET /blog?q=nonexistent: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, "No posts matching") {
+		t.Error("expected 'No posts matching' empty state")
+	}
+}
+
 func TestRoutes_Feed(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()

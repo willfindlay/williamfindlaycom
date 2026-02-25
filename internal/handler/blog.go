@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
+	"html/template"
 	"net/http"
 	"sort"
+	"strings"
 
 	"github.com/willfindlay/williamfindlaycom/internal/config"
 	"github.com/willfindlay/williamfindlaycom/internal/content"
@@ -10,9 +13,11 @@ import (
 
 type blogListData struct {
 	PageData
-	Posts     []content.BlogPost
-	AllTags   []string
-	ActiveTag string
+	Posts        []content.BlogPost
+	AllPostsJSON template.JS
+	AllTags      []string
+	ActiveTag    string
+	SearchQuery  string
 }
 
 type blogPostData struct {
@@ -32,8 +37,13 @@ func (d *Deps) BlogList() http.HandlerFunc {
 		data.JSONLD = buildCollectionPageJSONLD("Blog", data.Description, data.CanonicalURL)
 
 		if store != nil {
+			query := strings.TrimSpace(r.URL.Query().Get("q"))
 			tag := r.URL.Query().Get("tag")
-			if tag != "" {
+
+			if query != "" {
+				data.SearchQuery = query
+				data.Posts = content.SearchPosts(store.Posts, query)
+			} else if tag != "" {
 				data.ActiveTag = tag
 				if posts, ok := store.PostsByTag[tag]; ok {
 					for _, p := range posts {
@@ -42,6 +52,29 @@ func (d *Deps) BlogList() http.HandlerFunc {
 				}
 			} else {
 				data.Posts = store.Posts
+			}
+
+			type postMeta struct {
+				Slug        string   `json:"slug"`
+				Title       string   `json:"title"`
+				Date        string   `json:"date"`
+				DateShort   string   `json:"dateShort"`
+				Description string   `json:"description"`
+				Tags        []string `json:"tags"`
+			}
+			meta := make([]postMeta, len(store.Posts))
+			for i, p := range store.Posts {
+				meta[i] = postMeta{
+					Slug:        p.Slug,
+					Title:       p.Title,
+					Date:        p.Date.Format("January 2, 2006"),
+					DateShort:   p.Date.Format("2006-01-02"),
+					Description: p.Description,
+					Tags:        p.Tags,
+				}
+			}
+			if b, err := json.Marshal(meta); err == nil {
+				data.AllPostsJSON = template.JS(b)
 			}
 
 			tags := make(map[string]bool)
