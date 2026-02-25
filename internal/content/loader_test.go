@@ -80,6 +80,17 @@ Some content here.
 	if store.Posts[1].Content == "" {
 		t.Error("expected rendered content, got empty")
 	}
+
+	// PlainText populated (frontmatter stripped)
+	if store.Posts[0].PlainText == "" {
+		t.Error("expected PlainText to be populated")
+	}
+	if strings.Contains(store.Posts[0].PlainText, "---") {
+		t.Error("PlainText should not contain frontmatter delimiters")
+	}
+	if !strings.Contains(store.Posts[1].PlainText, "Hello **world**.") {
+		t.Errorf("expected raw markdown in PlainText, got %q", store.Posts[1].PlainText)
+	}
 }
 
 func TestLoadFromDir_EmptyDir(t *testing.T) {
@@ -258,6 +269,38 @@ skills:
 	edu := store.Resume.Education[0]
 	if edu.DateRange != "Sept. 2015 – Apr. 2020" {
 		t.Errorf("expected date range 'Sept. 2015 – Apr. 2020', got %q", edu.DateRange)
+	}
+}
+
+func TestExtractBody(t *testing.T) {
+	tests := []struct {
+		name string
+		src  string
+		want string
+	}{
+		{
+			name: "with frontmatter",
+			src:  "---\ntitle: Test\n---\n\nBody text here.",
+			want: "Body text here.",
+		},
+		{
+			name: "no frontmatter",
+			src:  "Just plain content.",
+			want: "Just plain content.",
+		},
+		{
+			name: "empty body",
+			src:  "---\ntitle: Test\n---\n",
+			want: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := extractBody([]byte(tt.src))
+			if got != tt.want {
+				t.Errorf("extractBody() = %q, want %q", got, tt.want)
+			}
+		})
 	}
 }
 

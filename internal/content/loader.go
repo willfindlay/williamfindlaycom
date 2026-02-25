@@ -98,6 +98,7 @@ func loadBlogPosts(dir string, store *ContentStore) error {
 		}
 		post.Slug = slug
 		post.Content = rendered
+		post.PlainText = extractBody(data)
 		return post, nil
 	})
 	if err != nil {
@@ -236,6 +237,20 @@ func renderInlineMarkdown(s string) template.HTML {
 	out = strings.ReplaceAll(out, "<p>", "")
 	out = strings.ReplaceAll(out, "</p>", "")
 	return template.HTML(strings.TrimSpace(out))
+}
+
+// extractBody strips YAML frontmatter delimiters and returns the markdown body.
+func extractBody(src []byte) string {
+	s := string(src)
+	if !strings.HasPrefix(s, "---") {
+		return strings.TrimSpace(s)
+	}
+	// Find closing delimiter
+	end := strings.Index(s[3:], "\n---")
+	if end < 0 {
+		return strings.TrimSpace(s)
+	}
+	return strings.TrimSpace(s[3+end+4:])
 }
 
 func renderMarkdown(src []byte, meta any) (template.HTML, error) {
