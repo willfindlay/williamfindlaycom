@@ -21,6 +21,7 @@
   ).matches;
 
   let abortController = null;
+  let activeTags = new Set();
 
   history.scrollRestoration = "manual";
 
@@ -173,11 +174,27 @@
     if (e.button !== 0) return;
 
     const anchor = e.target.closest("a");
+
+    // Tag toggle (client-side, no server round-trip)
+    if (anchor && anchor.dataset.tag && getBlogPosts()) {
+      e.preventDefault();
+      toggleTag(anchor.dataset.tag);
+      return;
+    }
+
+    // Clear all active tags
+    if (anchor && anchor.id === "tag-clear" && getBlogPosts()) {
+      e.preventDefault();
+      activeTags.clear();
+      applyTagFilter();
+      return;
+    }
+
     if (!shouldIntercept(anchor)) return;
 
     e.preventDefault();
 
-    // Same URL — no-op
+    // Same URL, skip navigation
     if (anchor.href === location.href) return;
 
     navigate(anchor.href, true);
@@ -233,6 +250,98 @@
     });
   }
 
+  function initTagsFromURL() {
+    activeTags.clear();
+    const params = new URLSearchParams(location.search);
+    for (const tag of params.getAll("tag")) {
+      activeTags.add(tag);
+    }
+    for (const pill of document.querySelectorAll("[data-tag]")) {
+      pill.classList.toggle("tag--active", activeTags.has(pill.dataset.tag));
+    }
+  }
+
+  function toggleTag(tag) {
+    if (activeTags.has(tag)) {
+      activeTags.delete(tag);
+    } else {
+      activeTags.add(tag);
+    }
+    applyTagFilter();
+  }
+
+  function applyTagFilter() {
+    const posts = getBlogPosts();
+    if (!posts) return;
+
+    const tagSubtitle = document.getElementById("tag-subtitle");
+    const tagClear = document.getElementById("tag-clear");
+    const searchSubtitle = document.getElementById("search-subtitle");
+    const searchClear = document.getElementById("search-clear");
+    const postGrid = document.querySelector(".post-grid");
+    const emptyState = document.getElementById("empty-state");
+    const searchInput = document.querySelector('.search-bar input[name="q"]');
+
+    if (!postGrid) return;
+
+    // Clear search when filtering by tags
+    if (searchInput) searchInput.value = "";
+    if (searchSubtitle) searchSubtitle.hidden = true;
+    if (searchClear) searchClear.hidden = true;
+
+    const filtered =
+      activeTags.size > 0
+        ? posts.filter((p) => {
+            const postTags = new Set(p.tags || []);
+            for (const t of activeTags) {
+              if (!postTags.has(t)) return false;
+            }
+            return true;
+          })
+        : posts;
+
+    for (const pill of document.querySelectorAll("[data-tag]")) {
+      pill.classList.toggle("tag--active", activeTags.has(pill.dataset.tag));
+    }
+
+    if (tagSubtitle) {
+      if (activeTags.size > 0) {
+        const sorted = [...activeTags].sort();
+        // Values from server-rendered JSON, escaped via escapeHTML
+        tagSubtitle.innerHTML = // eslint-disable-line no-unsanitized/property
+          "Posts tagged " +
+          sorted
+            .map((t) => `<span class="tag tag--active">${escapeHTML(t)}</span>`)
+            .join(", ");
+        tagSubtitle.hidden = false;
+      } else {
+        tagSubtitle.hidden = true;
+      }
+    }
+    if (tagClear) tagClear.hidden = activeTags.size === 0;
+
+    const noFilter = activeTags.size === 0;
+    // Values from server-rendered JSON, escaped via escapeHTML
+    postGrid.innerHTML = filtered // eslint-disable-line no-unsanitized/property
+      .map((p, i) => renderPostCard(p, i === 0 && noFilter))
+      .join("");
+
+    if (emptyState) {
+      if (filtered.length === 0) {
+        emptyState.textContent = "No posts matching selected tags.";
+        emptyState.hidden = false;
+      } else {
+        emptyState.hidden = true;
+      }
+    }
+
+    const url = new URL("/blog", location.origin);
+    for (const t of [...activeTags].sort()) {
+      url.searchParams.append("tag", t);
+    }
+    history.replaceState(null, "", url.toString());
+  }
+
   function applyBlogSearch(query) {
     const posts = getBlogPosts();
     if (!posts) return;
@@ -249,6 +358,12 @@
     const emptyState = document.getElementById("empty-state");
 
     if (!postGrid) return;
+
+    // Clear tag selection when searching
+    activeTags.clear();
+    for (const pill of document.querySelectorAll("[data-tag]")) {
+      pill.classList.remove("tag--active");
+    }
 
     const trimmed = query.trim();
     const filtered = trimmed ? filterBlogPosts(posts, trimmed) : posts;
@@ -313,4 +428,8 @@
       if (input) applyBlogSearch(input.value);
     }
   });
+
+  // Sync tag state from URL on load and SPA navigation
+  initTagsFromURL();
+  document.addEventListener("spa:navigate", initTagsFromURL);
 })();
