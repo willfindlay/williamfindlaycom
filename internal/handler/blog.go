@@ -16,7 +16,8 @@ type blogListData struct {
 	Posts        []content.BlogPost
 	AllPostsJSON template.JS
 	AllTags      []string
-	ActiveTag    string
+	ActiveTags   []string
+	ActiveTagSet map[string]bool
 	SearchQuery  string
 }
 
@@ -38,18 +39,19 @@ func (d *Deps) BlogList() http.HandlerFunc {
 
 		if store != nil {
 			query := strings.TrimSpace(r.URL.Query().Get("q"))
-			tag := r.URL.Query().Get("tag")
+			tags := r.URL.Query()["tag"]
+
+			data.ActiveTagSet = make(map[string]bool)
 
 			if query != "" {
 				data.SearchQuery = query
 				data.Posts = content.SearchPosts(store.Posts, query)
-			} else if tag != "" {
-				data.ActiveTag = tag
-				if posts, ok := store.PostsByTag[tag]; ok {
-					for _, p := range posts {
-						data.Posts = append(data.Posts, *p)
-					}
+			} else if len(tags) > 0 {
+				for _, t := range tags {
+					data.ActiveTags = append(data.ActiveTags, t)
+					data.ActiveTagSet[t] = true
 				}
+				data.Posts = postsWithAllTags(store.Posts, data.ActiveTagSet)
 			} else {
 				data.Posts = store.Posts
 			}
@@ -77,11 +79,11 @@ func (d *Deps) BlogList() http.HandlerFunc {
 				data.AllPostsJSON = template.JS(b)
 			}
 
-			tags := make(map[string]bool)
+			allTagSet := make(map[string]bool)
 			for t := range store.PostsByTag {
-				tags[t] = true
+				allTagSet[t] = true
 			}
-			for t := range tags {
+			for t := range allTagSet {
 				data.AllTags = append(data.AllTags, t)
 			}
 			sort.Strings(data.AllTags)
@@ -116,4 +118,25 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 
 		d.render(w, "templates/blog/post.html", data)
 	}
+}
+
+func postsWithAllTags(posts []content.BlogPost, required map[string]bool) []content.BlogPost {
+	var result []content.BlogPost
+	for _, p := range posts {
+		tags := make(map[string]bool, len(p.Tags))
+		for _, t := range p.Tags {
+			tags[t] = true
+		}
+		match := true
+		for r := range required {
+			if !tags[r] {
+				match = false
+				break
+			}
+		}
+		if match {
+			result = append(result, p)
+		}
+	}
+	return result
 }
