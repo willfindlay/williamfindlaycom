@@ -35,12 +35,25 @@ func newTestServer(t *testing.T) *httptest.Server {
 title: Test Post
 date: 2024-01-01
 description: A test post
-tags: [test]
+tags: [test, go]
 ---
 
 Test content.
 `
 	if err := os.WriteFile(filepath.Join(blogDir, "test-post.md"), []byte(post), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	post2 := `---
+title: Second Post
+date: 2024-01-02
+description: Another test post
+tags: [test, rust]
+---
+
+More content.
+`
+	if err := os.WriteFile(filepath.Join(blogDir, "second-post.md"), []byte(post2), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -347,6 +360,65 @@ func TestRoutes_BlogSearchNoResults(t *testing.T) {
 	body := readBody(t, resp)
 	if !strings.Contains(body, "No posts matching") {
 		t.Error("expected 'No posts matching' empty state")
+	}
+}
+
+func TestRoutes_BlogTagFilter(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/blog?tag=go")
+	if err != nil {
+		t.Fatalf("GET /blog?tag=go: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, `data-slug="test-post"`) {
+		t.Error("expected test-post card in filtered results")
+	}
+	if strings.Contains(body, `data-slug="second-post"`) {
+		t.Error("did not expect second-post card when filtering by 'go'")
+	}
+}
+
+func TestRoutes_BlogMultiTagFilter(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	// Both posts have "test", only "test-post" has "go"
+	resp, err := http.Get(ts.URL + "/blog?tag=test&tag=go")
+	if err != nil {
+		t.Fatalf("GET /blog?tag=test&tag=go: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, `data-slug="test-post"`) {
+		t.Error("expected test-post card matching both tags")
+	}
+	if strings.Contains(body, `data-slug="second-post"`) {
+		t.Error("did not expect second-post card (has test but not go)")
+	}
+
+	// No post has both "go" and "rust"
+	resp2, err := http.Get(ts.URL + "/blog?tag=go&tag=rust")
+	if err != nil {
+		t.Fatalf("GET /blog?tag=go&tag=rust: %v", err)
+	}
+	defer resp2.Body.Close() //nolint:errcheck
+
+	body2 := readBody(t, resp2)
+	if strings.Contains(body2, `data-slug="test-post"`) || strings.Contains(body2, `data-slug="second-post"`) {
+		t.Error("expected no post cards matching both 'go' and 'rust'")
 	}
 }
 
