@@ -1,14 +1,6 @@
 {{define "content"}}
 <section class="page-header">
     <h1 class="page-header__title">Blog</h1>
-    <p class="page-header__subtitle" id="search-subtitle"{{if not .SearchQuery}} hidden{{end}}>
-        Results for <em id="search-subtitle-query">{{.SearchQuery}}</em>
-    </p>
-    <a href="/blog" class="page-header__clear" id="search-clear"{{if not .SearchQuery}} hidden{{end}}>Clear search</a>
-    <p class="page-header__subtitle" id="tag-subtitle"{{if not .ActiveTags}} hidden{{end}}>
-        Posts tagged {{range $i, $tag := .ActiveTags}}{{if $i}}, {{end}}<span class="tag tag--active">{{$tag}}</span>{{end}}
-    </p>
-    <a href="/blog" class="page-header__clear" id="tag-clear"{{if not .ActiveTags}} hidden{{end}}>Clear filter</a>
 </section>
 
 <form class="search-bar" method="get" action="/blog">
