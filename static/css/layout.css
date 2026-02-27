@@ -120,18 +120,6 @@
   margin-bottom: var(--space-sm);
 }
 
-.page-header__subtitle {
-  color: var(--color-text-muted);
-  font-size: 1.125rem;
-}
-
-.page-header__clear {
-  color: var(--color-accent);
-  font-size: 0.875rem;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 /* Post Grid - Asymmetric Editorial */
 .post-grid {
   display: grid;

@@ -182,14 +182,6 @@
       return;
     }
 
-    // Clear all active tags
-    if (anchor && anchor.id === "tag-clear" && getBlogPosts()) {
-      e.preventDefault();
-      activeTags.clear();
-      applyTagFilter();
-      return;
-    }
-
     if (!shouldIntercept(anchor)) return;
 
     e.preventDefault();
@@ -274,10 +266,6 @@
     const posts = getBlogPosts();
     if (!posts) return;
 
-    const tagSubtitle = document.getElementById("tag-subtitle");
-    const tagClear = document.getElementById("tag-clear");
-    const searchSubtitle = document.getElementById("search-subtitle");
-    const searchClear = document.getElementById("search-clear");
     const postGrid = document.querySelector(".post-grid");
     const emptyState = document.getElementById("empty-state");
     const searchInput = document.querySelector('.search-bar input[name="q"]');
@@ -286,8 +274,6 @@
 
     // Clear search when filtering by tags
     if (searchInput) searchInput.value = "";
-    if (searchSubtitle) searchSubtitle.hidden = true;
-    if (searchClear) searchClear.hidden = true;
 
     const filtered =
       activeTags.size > 0
@@ -303,22 +289,6 @@
     for (const pill of document.querySelectorAll("[data-tag]")) {
       pill.classList.toggle("tag--active", activeTags.has(pill.dataset.tag));
     }
-
-    if (tagSubtitle) {
-      if (activeTags.size > 0) {
-        const sorted = [...activeTags].sort();
-        // Values from server-rendered JSON, escaped via escapeHTML
-        tagSubtitle.innerHTML = // eslint-disable-line no-unsanitized/property
-          "Posts tagged " +
-          sorted
-            .map((t) => `<span class="tag tag--active">${escapeHTML(t)}</span>`)
-            .join(", ");
-        tagSubtitle.hidden = false;
-      } else {
-        tagSubtitle.hidden = true;
-      }
-    }
-    if (tagClear) tagClear.hidden = activeTags.size === 0;
 
     const noFilter = activeTags.size === 0;
     // Values from server-rendered JSON, escaped via escapeHTML
@@ -346,13 +316,6 @@
     const posts = getBlogPosts();
     if (!posts) return;
 
-    const searchSubtitle = document.getElementById("search-subtitle");
-    const searchSubtitleQuery = document.getElementById(
-      "search-subtitle-query",
-    );
-    const searchClear = document.getElementById("search-clear");
-    const tagSubtitle = document.getElementById("tag-subtitle");
-    const tagClear = document.getElementById("tag-clear");
     const tagFilter = document.getElementById("tag-filter");
     const postGrid = document.querySelector(".post-grid");
     const emptyState = document.getElementById("empty-state");
@@ -368,19 +331,9 @@
     const trimmed = query.trim();
     const filtered = trimmed ? filterBlogPosts(posts, trimmed) : posts;
 
-    // Update header elements
     if (trimmed) {
-      if (searchSubtitle) {
-        searchSubtitleQuery.textContent = trimmed;
-        searchSubtitle.hidden = false;
-      }
-      if (searchClear) searchClear.hidden = false;
-      if (tagSubtitle) tagSubtitle.hidden = true;
-      if (tagClear) tagClear.hidden = true;
       if (tagFilter) tagFilter.hidden = true;
     } else {
-      if (searchSubtitle) searchSubtitle.hidden = true;
-      if (searchClear) searchClear.hidden = true;
       if (tagFilter) tagFilter.hidden = false;
     }
 
