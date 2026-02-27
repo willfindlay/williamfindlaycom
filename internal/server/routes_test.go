@@ -422,6 +422,45 @@ func TestRoutes_BlogMultiTagFilter(t *testing.T) {
 	}
 }
 
+func TestRoutes_BlogCombinedSearchAndTag(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	// "another" matches only second-post (description), "test" tag matches both
+	resp, err := http.Get(ts.URL + "/blog?q=another&tag=test")
+	if err != nil {
+		t.Fatalf("GET /blog?q=another&tag=test: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	body := readBody(t, resp)
+	if !strings.Contains(body, `data-slug="second-post"`) {
+		t.Error("expected second-post matching search and tag")
+	}
+	if strings.Contains(body, `data-slug="test-post"`) {
+		t.Error("did not expect test-post (does not match search 'another')")
+	}
+
+	// "test" matches both posts, "go" tag matches only test-post
+	resp2, err := http.Get(ts.URL + "/blog?q=test&tag=go")
+	if err != nil {
+		t.Fatalf("GET /blog?q=test&tag=go: %v", err)
+	}
+	defer resp2.Body.Close() //nolint:errcheck
+
+	body2 := readBody(t, resp2)
+	if !strings.Contains(body2, `data-slug="test-post"`) {
+		t.Error("expected test-post matching search and tag")
+	}
+	if strings.Contains(body2, `data-slug="second-post"`) {
+		t.Error("did not expect second-post (has 'test' in title but no 'go' tag)")
+	}
+}
+
 func TestRoutes_Feed(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()

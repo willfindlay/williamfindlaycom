@@ -259,10 +259,10 @@
     } else {
       activeTags.add(tag);
     }
-    applyTagFilter();
+    applyFilters();
   }
 
-  function applyTagFilter() {
+  function applyFilters() {
     const posts = getBlogPosts();
     if (!posts) return;
 
@@ -272,25 +272,26 @@
 
     if (!postGrid) return;
 
-    // Clear search when filtering by tags
-    if (searchInput) searchInput.value = "";
+    const query = searchInput ? searchInput.value.trim() : "";
 
-    const filtered =
-      activeTags.size > 0
-        ? posts.filter((p) => {
-            const postTags = new Set(p.tags || []);
-            for (const t of activeTags) {
-              if (!postTags.has(t)) return false;
-            }
-            return true;
-          })
-        : posts;
+    // Apply text search then tag filter (AND logic)
+    let filtered = query ? filterBlogPosts(posts, query) : posts;
+
+    if (activeTags.size > 0) {
+      filtered = filtered.filter((p) => {
+        const postTags = new Set(p.tags || []);
+        for (const t of activeTags) {
+          if (!postTags.has(t)) return false;
+        }
+        return true;
+      });
+    }
 
     for (const pill of document.querySelectorAll("[data-tag]")) {
       pill.classList.toggle("tag--active", activeTags.has(pill.dataset.tag));
     }
 
-    const noFilter = activeTags.size === 0;
+    const noFilter = activeTags.size === 0 && !query;
     // Values from server-rendered JSON, escaped via escapeHTML
     postGrid.innerHTML = filtered // eslint-disable-line no-unsanitized/property
       .map((p, i) => renderPostCard(p, i === 0 && noFilter))
@@ -298,7 +299,15 @@
 
     if (emptyState) {
       if (filtered.length === 0) {
-        emptyState.textContent = "No posts matching selected tags.";
+        if (query && activeTags.size > 0) {
+          emptyState.textContent = `No posts matching "${query}" with selected tags.`;
+        } else if (query) {
+          emptyState.textContent = `No posts matching "${query}".`;
+        } else if (activeTags.size > 0) {
+          emptyState.textContent = "No posts matching selected tags.";
+        } else {
+          emptyState.textContent = "No posts yet.";
+        }
         emptyState.hidden = false;
       } else {
         emptyState.hidden = true;
@@ -306,57 +315,10 @@
     }
 
     const url = new URL("/blog", location.origin);
+    if (query) url.searchParams.set("q", query);
     for (const t of [...activeTags].sort()) {
       url.searchParams.append("tag", t);
     }
-    history.replaceState(null, "", url.toString());
-  }
-
-  function applyBlogSearch(query) {
-    const posts = getBlogPosts();
-    if (!posts) return;
-
-    const tagFilter = document.getElementById("tag-filter");
-    const postGrid = document.querySelector(".post-grid");
-    const emptyState = document.getElementById("empty-state");
-
-    if (!postGrid) return;
-
-    // Clear tag selection when searching
-    activeTags.clear();
-    for (const pill of document.querySelectorAll("[data-tag]")) {
-      pill.classList.remove("tag--active");
-    }
-
-    const trimmed = query.trim();
-    const filtered = trimmed ? filterBlogPosts(posts, trimmed) : posts;
-
-    if (trimmed) {
-      if (tagFilter) tagFilter.hidden = true;
-    } else {
-      if (tagFilter) tagFilter.hidden = false;
-    }
-
-    // Rebuild grid (all values come from server-rendered JSON, escaped via escapeHTML)
-    postGrid.innerHTML = filtered // eslint-disable-line no-unsanitized/property
-      .map((p, i) => renderPostCard(p, i === 0 && !trimmed))
-      .join("");
-
-    // Empty state
-    if (emptyState) {
-      if (filtered.length === 0) {
-        emptyState.textContent = trimmed
-          ? `No posts matching "${trimmed}".`
-          : "No posts yet.";
-        emptyState.hidden = false;
-      } else {
-        emptyState.hidden = true;
-      }
-    }
-
-    // Update URL without triggering navigation
-    const url = new URL("/blog", location.origin);
-    if (trimmed) url.searchParams.set("q", trimmed);
     history.replaceState(null, "", url.toString());
   }
 
@@ -366,7 +328,7 @@
       e.target.matches('.search-bar input[name="q"]') &&
       document.getElementById("blog-posts-data")
     ) {
-      applyBlogSearch(e.target.value);
+      applyFilters();
     }
   });
 
@@ -377,8 +339,7 @@
       document.getElementById("blog-posts-data")
     ) {
       e.preventDefault();
-      const input = e.target.querySelector('input[name="q"]');
-      if (input) applyBlogSearch(input.value);
+      applyFilters();
     }
   });
 
