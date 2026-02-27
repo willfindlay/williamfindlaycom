@@ -8,7 +8,7 @@
     <button type="submit" class="search-bar__button">Search</button>
 </form>
 
-<div class="tag-filter" id="tag-filter"{{if .SearchQuery}} hidden{{end}}>
+<div class="tag-filter" id="tag-filter">
     {{range .AllTags}}
     <a href="/blog?tag={{.}}" class="tag{{if index $.ActiveTagSet .}} tag--active{{end}}" data-tag="{{.}}">{{.}}</a>
     {{end}}
@@ -32,7 +32,7 @@
 </div>
 
 <p class="empty-state" id="empty-state"{{if .Posts}} hidden{{end}}>
-    {{if .SearchQuery}}No posts matching "{{.SearchQuery}}".{{else}}No posts yet.{{end}}
+    {{if and .SearchQuery .ActiveTags}}No posts matching "{{.SearchQuery}}" with selected tags.{{else if .SearchQuery}}No posts matching "{{.SearchQuery}}".{{else if .ActiveTags}}No posts matching selected tags.{{else}}No posts yet.{{end}}
 </p>
 
 <script type="application/json" id="blog-posts-data">{{.AllPostsJSON}}</script>

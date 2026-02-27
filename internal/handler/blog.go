@@ -43,18 +43,22 @@ func (d *Deps) BlogList() http.HandlerFunc {
 
 			data.ActiveTagSet = make(map[string]bool)
 
+			data.SearchQuery = query
+			filtered := store.Posts
+
 			if query != "" {
-				data.SearchQuery = query
-				data.Posts = content.SearchPosts(store.Posts, query)
-			} else if len(tags) > 0 {
+				filtered = content.SearchPosts(filtered, query)
+			}
+
+			if len(tags) > 0 {
 				for _, t := range tags {
 					data.ActiveTags = append(data.ActiveTags, t)
 					data.ActiveTagSet[t] = true
 				}
-				data.Posts = postsWithAllTags(store.Posts, data.ActiveTagSet)
-			} else {
-				data.Posts = store.Posts
+				filtered = postsWithAllTags(filtered, data.ActiveTagSet)
 			}
+
+			data.Posts = filtered
 
 			type postMeta struct {
 				Slug        string   `json:"slug"`
