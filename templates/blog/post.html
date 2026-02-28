@@ -2,6 +2,7 @@
 <article class="post">
     <header class="post__header">
         <time class="post__date" datetime="{{formatDateShort .Post.Date}}">{{formatDate .Post.Date}}</time>
+        <span class="post__reading-time">{{.Post.ReadingTime}} min read</span>
         <h1 class="post__title">{{.Post.Title}}</h1>
         {{if .Post.Tags}}
         <div class="post__tags">
@@ -32,9 +33,24 @@
             </a>
         </div>
     </footer>
+    {{if or .PrevPost .NextPost}}
+    <nav class="post-nav" aria-label="Post navigation">
+        {{if .PrevPost}}
+        <a href="/blog/{{.PrevPost.Slug}}" class="post-nav__link post-nav__link--prev">
+            <span class="post-nav__label">Older</span>
+            <span class="post-nav__title">{{.PrevPost.Title}}</span>
+        </a>
+        {{end}}
+        {{if .NextPost}}
+        <a href="/blog/{{.NextPost.Slug}}" class="post-nav__link post-nav__link--next">
+            <span class="post-nav__label">Newer</span>
+            <span class="post-nav__title">{{.NextPost.Title}}</span>
+        </a>
+        {{end}}
+    </nav>
+    {{end}}
     {{if .Giscus.Repo}}
     <section class="comments">
-        <h2 class="comments__heading">Comments</h2>
         <div class="giscus-container"
              data-repo="{{.Giscus.Repo}}"
              data-repo-id="{{.Giscus.RepoID}}"

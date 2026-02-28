@@ -23,8 +23,10 @@ type blogListData struct {
 
 type blogPostData struct {
 	PageData
-	Post   *content.BlogPost
-	Giscus config.GiscusConfig
+	Post     *content.BlogPost
+	PrevPost *content.BlogPost // older
+	NextPost *content.BlogPost // newer
+	Giscus   config.GiscusConfig
 }
 
 func (d *Deps) BlogList() http.HandlerFunc {
@@ -114,6 +116,17 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 		}
 
 		data := blogPostData{PageData: d.basePage("blog"), Post: post, Giscus: d.Giscus}
+		for i, p := range store.Posts {
+			if p.Slug == slug {
+				if i+1 < len(store.Posts) {
+					data.PrevPost = &store.Posts[i+1] // older
+				}
+				if i > 0 {
+					data.NextPost = &store.Posts[i-1] // newer
+				}
+				break
+			}
+		}
 		data.PageTitle = post.Title
 		data.Description = post.Description
 		data.CanonicalURL = d.SiteURL + "/blog/" + slug

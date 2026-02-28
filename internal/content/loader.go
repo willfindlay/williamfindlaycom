@@ -99,6 +99,7 @@ func loadBlogPosts(dir string, store *ContentStore) error {
 		post.Slug = slug
 		post.Content = rendered
 		post.PlainText = extractBody(data)
+		post.ReadingTime = readingTime(post.PlainText)
 		return post, nil
 	})
 	if err != nil {
@@ -237,6 +238,14 @@ func renderInlineMarkdown(s string) template.HTML {
 	out = strings.ReplaceAll(out, "<p>", "")
 	out = strings.ReplaceAll(out, "</p>", "")
 	return template.HTML(strings.TrimSpace(out))
+}
+
+func readingTime(text string) int {
+	words := len(strings.Fields(text))
+	if m := words / 238; m > 0 {
+		return m
+	}
+	return 1
 }
 
 // extractBody strips YAML frontmatter delimiters and returns the markdown body.
