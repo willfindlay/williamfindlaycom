@@ -7,10 +7,17 @@ import (
 	williamfindlaycom "github.com/willfindlay/williamfindlaycom"
 	"github.com/willfindlay/williamfindlaycom/internal/config"
 	"github.com/willfindlay/williamfindlaycom/internal/server"
+	"github.com/willfindlay/williamfindlaycom/internal/version"
 )
 
 func main() {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
+
+	slog.Info("starting",
+		"version", version.Version,
+		"commit", version.Commit,
+		"build_time", version.BuildTime,
+	)
 
 	cfg, err := config.Load()
 	if err != nil {
