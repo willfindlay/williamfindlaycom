@@ -16,7 +16,7 @@
 
 <div class="post-grid">
     {{range $i, $post := .Posts}}
-    <article class="card{{if and (eq $i 0) (not $.ActiveTags) (not $.SearchQuery)}} card--featured{{end}}" data-slug="{{$post.Slug}}">
+    <article class="card{{if and (eq $i 0) (not $.ActiveTags) (not $.SearchQuery)}} card--featured{{end}}" data-slug="{{$post.Slug}}" data-reveal>
         <a href="/blog/{{$post.Slug}}" class="card__link">
             <time class="card__date" datetime="{{formatDateShort $post.Date}}">{{formatDate $post.Date}}</time>
             <h3 class="card__title">{{$post.Title}}</h3>
