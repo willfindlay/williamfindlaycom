@@ -22,6 +22,8 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /sitemap.xml", s.deps.Sitemap())
 	mux.HandleFunc("GET /robots.txt", s.deps.Robots())
 
+	mux.HandleFunc("GET "+s.cssBundlePath, s.serveCSSBundle)
+
 	staticFS, err := fs.Sub(s.static, "static")
 	if err != nil {
 		panic(fmt.Sprintf("embedded static fs: %v", err))
@@ -35,4 +37,10 @@ func (s *Server) routes() http.Handler {
 	h = securityHeaders(h)
 	h = logging(h)
 	return h
+}
+
+func (s *Server) serveCSSBundle(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/css; charset=utf-8")
+	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	w.Write(s.cssBundle) //nolint:errcheck
 }
