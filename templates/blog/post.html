@@ -35,6 +35,7 @@
     </footer>
     {{if or .PrevPost .NextPost}}
     <nav class="post-nav" aria-label="Post navigation">
+        <h2 class="post-nav__heading">Up Next</h2>
         {{if .PrevPost}}
         <a href="/blog/{{.PrevPost.Slug}}" class="post-nav__link post-nav__link--prev">
             <span class="post-nav__label">Older</span>
@@ -48,6 +49,20 @@
         </a>
         {{end}}
     </nav>
+    {{end}}
+    {{if .RelatedPosts}}
+    <section class="related-posts">
+        <h2 class="related-posts__heading">Related Posts</h2>
+        <div class="related-posts__grid">
+            {{range .RelatedPosts}}
+            <a href="/blog/{{.Slug}}" class="related-posts__card">
+                <time class="related-posts__date" datetime="{{formatDateShort .Date}}">{{formatDate .Date}}</time>
+                <h3 class="related-posts__title">{{.Title}}</h3>
+                <p class="related-posts__description">{{.Description}}</p>
+            </a>
+            {{end}}
+        </div>
+    </section>
     {{end}}
     {{if .Giscus.Repo}}
     <section class="comments">

@@ -3,6 +3,7 @@ package content
 import (
 	"fmt"
 	"html/template"
+	"sort"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -160,4 +161,59 @@ type ContentStore struct {
 	ProjectsBySlug map[string]*Project
 
 	Resume *Resume
+}
+
+// RelatedPosts returns up to `limit` posts related to the given slug,
+// scored by number of overlapping tags with ties broken by recency.
+func (cs *ContentStore) RelatedPosts(slug string, limit int) []*BlogPost {
+	post, ok := cs.PostsBySlug[slug]
+	if !ok || len(post.Tags) == 0 {
+		return nil
+	}
+
+	tagSet := make(map[string]bool, len(post.Tags))
+	for _, t := range post.Tags {
+		tagSet[t] = true
+	}
+
+	type scored struct {
+		post  *BlogPost
+		score int
+	}
+
+	seen := map[string]bool{slug: true}
+	var candidates []scored
+
+	for _, t := range post.Tags {
+		for _, p := range cs.PostsByTag[t] {
+			if seen[p.Slug] {
+				continue
+			}
+			seen[p.Slug] = true
+			score := 0
+			for _, pt := range p.Tags {
+				if tagSet[pt] {
+					score++
+				}
+			}
+			candidates = append(candidates, scored{post: p, score: score})
+		}
+	}
+
+	sort.Slice(candidates, func(i, j int) bool {
+		if candidates[i].score != candidates[j].score {
+			return candidates[i].score > candidates[j].score
+		}
+		return candidates[i].post.Date.After(candidates[j].post.Date)
+	})
+
+	n := limit
+	if n > len(candidates) {
+		n = len(candidates)
+	}
+	result := make([]*BlogPost, n)
+	for i := 0; i < n; i++ {
+		result[i] = candidates[i].post
+	}
+	return result
 }
