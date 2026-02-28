@@ -20,7 +20,12 @@ import (
 func newTestServer(t *testing.T) *httptest.Server {
 	t.Helper()
 
-	renderer, err := render.New(williamfindlaycom.Embedded)
+	bundleBytes, bundlePath, err := buildCSSBundle(williamfindlaycom.Embedded)
+	if err != nil {
+		t.Fatalf("buildCSSBundle: %v", err)
+	}
+
+	renderer, err := render.New(williamfindlaycom.Embedded, bundlePath)
 	if err != nil {
 		t.Fatalf("render.New: %v", err)
 	}
@@ -73,10 +78,12 @@ More content.
 	}
 
 	srv := &Server{
-		cfg:    &config.Config{},
-		static: williamfindlaycom.Embedded,
-		store:  store,
-		deps:   deps,
+		cfg:           &config.Config{},
+		static:        williamfindlaycom.Embedded,
+		store:         store,
+		deps:          deps,
+		cssBundle:     bundleBytes,
+		cssBundlePath: bundlePath,
 	}
 
 	return httptest.NewServer(srv.routes())

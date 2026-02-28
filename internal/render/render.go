@@ -49,8 +49,14 @@ func xmlEscape(s string) string {
 	return r.Replace(s)
 }
 
-func New(fsys fs.FS) (*Renderer, error) {
-	base, err := template.New("base").Funcs(funcMap).ParseFS(fsys, "templates/base.html")
+func New(fsys fs.FS, cssBundlePath string) (*Renderer, error) {
+	fmap := template.FuncMap{}
+	for k, v := range funcMap {
+		fmap[k] = v
+	}
+	fmap["cssBundle"] = func() string { return cssBundlePath }
+
+	base, err := template.New("base").Funcs(fmap).ParseFS(fsys, "templates/base.html")
 	if err != nil {
 		return nil, fmt.Errorf("parsing base template: %w", err)
 	}
