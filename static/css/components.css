@@ -225,6 +225,67 @@ a.tag:hover,
   border-color: var(--color-accent);
 }
 
+/* Related Posts */
+.related-posts {
+  margin-top: var(--space-2xl);
+}
+
+.related-posts__heading {
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-faint);
+  margin-bottom: var(--space-lg);
+}
+
+.related-posts__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-md);
+}
+
+.related-posts__card {
+  display: block;
+  padding: var(--space-lg);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.related-posts__card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.related-posts__date {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--color-accent);
+  margin-bottom: var(--space-xs);
+}
+
+.related-posts__title {
+  font-family: "DejaVu Sans", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: var(--space-xs);
+  transition: color var(--transition-fast);
+}
+
+.related-posts__card:hover .related-posts__title {
+  color: var(--color-accent);
+}
+
+.related-posts__description {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
 /* Comments */
 .comments {
   margin-top: var(--space-2xl);
@@ -243,6 +304,16 @@ a.tag:hover,
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-lg);
+}
+
+.post-nav__heading {
+  grid-column: 1 / -1;
+  font-family: "DejaVu Sans", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-faint);
 }
 
 .post-nav__link {
@@ -264,7 +335,7 @@ a.tag:hover,
   grid-column: 1;
 }
 
-.post-nav__link--next {
+.post-nav__link--prev ~ .post-nav__link--next {
   grid-column: 2;
   text-align: right;
 }

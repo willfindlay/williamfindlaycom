@@ -23,10 +23,11 @@ type blogListData struct {
 
 type blogPostData struct {
 	PageData
-	Post     *content.BlogPost
-	PrevPost *content.BlogPost // older
-	NextPost *content.BlogPost // newer
-	Giscus   config.GiscusConfig
+	Post         *content.BlogPost
+	PrevPost     *content.BlogPost // older
+	NextPost     *content.BlogPost // newer
+	RelatedPosts []*content.BlogPost
+	Giscus       config.GiscusConfig
 }
 
 func (d *Deps) BlogList() http.HandlerFunc {
@@ -132,6 +133,7 @@ func (d *Deps) BlogPost() http.HandlerFunc {
 		data.CanonicalURL = d.SiteURL + "/blog/" + slug
 		data.OGType = "article"
 		data.JSONLD = buildBlogPostingJSONLD(post, d.SiteURL)
+		data.RelatedPosts = store.RelatedPosts(slug, 3)
 
 		d.render(w, "templates/blog/post.html", data)
 	}
