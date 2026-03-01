@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	chromahtml "github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/yuin/goldmark"
 	highlighting "github.com/yuin/goldmark-highlighting/v2"
 	"github.com/yuin/goldmark/extension"
@@ -26,7 +27,9 @@ var md = goldmark.New(
 		&frontmatter.Extender{},
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("dracula"),
-			highlighting.WithFormatOptions(),
+			highlighting.WithFormatOptions(
+				chromahtml.WithClasses(true),
+			),
 			highlighting.WithWrapperRenderer(codeBlockWrapper),
 		),
 	),

@@ -4,11 +4,9 @@
   margin-bottom: var(--space-lg);
 }
 
-/* Allow code blocks to expand beyond prose width up to the container edge */
+/* Allow code blocks to fill their parent width; wrapping handles overflow */
 .prose .code-block {
-  max-width: calc(1100px - 2 * var(--space-lg));
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
 }
 
 .code-block pre {
@@ -81,10 +79,6 @@
   transition: background var(--transition-fast);
 }
 
-.code-block__toggle:hover {
-  background: var(--color-bg-raised);
-}
-
 /* Copy button */
 .code-block__copy {
   position: absolute;
@@ -110,13 +104,19 @@
   opacity: 1;
 }
 
-.code-block__copy:hover {
-  color: var(--color-accent);
-  background: var(--color-bg-raised);
-}
-
 .code-block__copy--copied {
   color: var(--color-accent);
+}
+
+/* Hover styles (only for devices that support hover) */
+@media (hover: hover) {
+  .code-block__toggle:hover {
+    background: var(--color-bg-raised);
+  }
+  .code-block__copy:hover {
+    color: var(--color-accent);
+    background: var(--color-bg-raised);
+  }
 }
 
 /* Reduced motion */
