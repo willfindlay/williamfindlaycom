@@ -439,3 +439,55 @@ Content.
 		t.Errorf("expected 1 post, got %d", len(store.Posts))
 	}
 }
+
+func TestStripCodeBlocks(t *testing.T) {
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "no code blocks",
+			in:   "Hello world.\nSecond line.",
+			want: "Hello world.\nSecond line.\n",
+		},
+		{
+			name: "single block",
+			in:   "Before.\n```go\nfunc main() {}\n```\nAfter.",
+			want: "Before.\nAfter.\n",
+		},
+		{
+			name: "multiple blocks",
+			in:   "A.\n```\ncode1\n```\nB.\n```python\ncode2\n```\nC.",
+			want: "A.\nB.\nC.\n",
+		},
+		{
+			name: "block with attributes",
+			in:   "Prose.\n```go {filename=\"main.go\" collapsed=\"true\"}\npackage main\n```\nMore prose.",
+			want: "Prose.\nMore prose.\n",
+		},
+		{
+			name: "unclosed block at EOF",
+			in:   "Start.\n```\ncode without closing fence",
+			want: "Start.\n",
+		},
+		{
+			name: "4-backtick fence wrapping 3-backtick content",
+			in:   "Before.\n````md\nSome text.\n```go\nfunc main() {}\n```\nMore text.\n````\nAfter.",
+			want: "Before.\nAfter.\n",
+		},
+		{
+			name: "3-backtick fence inside 4-backtick fence does not close it",
+			in:   "A.\n````\nline1\n```\nline2\n````\nB.",
+			want: "A.\nB.\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := stripCodeBlocks(tt.in)
+			if got != tt.want {
+				t.Errorf("stripCodeBlocks() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
