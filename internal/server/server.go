@@ -66,6 +66,7 @@ func buildCSSBundle(fsys fs.FS) ([]byte, string, error) {
 		"static/css/layout.css",
 		"static/css/components.css",
 		"static/css/syntax.css",
+		"static/css/codeblocks.css",
 		"static/css/main.css",
 	}
 

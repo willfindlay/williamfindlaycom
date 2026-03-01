@@ -1,0 +1,125 @@
+/* Code Block Container */
+.code-block {
+  position: relative;
+  margin-bottom: var(--space-lg);
+}
+
+.code-block pre {
+  margin-bottom: 0;
+}
+
+/* Header bar with filename */
+.code-block__header {
+  padding: var(--space-sm) var(--space-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.code-block__filename {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Remove top radius from pre when header is present */
+.code-block__header + pre {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+/* Remove bottom radius from pre when toggle follows */
+.code-block:has(.code-block__toggle) pre {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* When header + toggle: pre gets no radius at all */
+.code-block:has(.code-block__header):has(.code-block__toggle) pre {
+  border-radius: 0;
+}
+
+/* Collapsed state */
+.code-block--collapsed pre {
+  position: relative;
+  max-height: 10rem;
+  overflow: hidden;
+}
+
+.code-block--collapsed pre::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rem;
+  background: linear-gradient(rgba(17, 24, 39, 0), rgba(17, 24, 39, 1));
+  pointer-events: none;
+}
+
+/* Expand/collapse toggle */
+.code-block__toggle {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.code-block__toggle:hover {
+  background: var(--color-bg-raised);
+}
+
+/* Copy button */
+.code-block__copy {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  padding: 0.25em 0.5em;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--color-text-faint);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--transition-fast),
+    color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.code-block:hover .code-block__copy {
+  opacity: 1;
+}
+
+.code-block__copy:hover {
+  color: var(--color-accent);
+  background: var(--color-bg-raised);
+}
+
+.code-block__copy--copied {
+  color: var(--color-accent);
+}
+
+/* Offset copy button when header is present */
+.code-block:has(.code-block__header) .code-block__copy {
+  top: var(--space-sm);
+  right: var(--space-sm);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .code-block__copy,
+  .code-block__toggle {
+    transition: none;
+  }
+}
