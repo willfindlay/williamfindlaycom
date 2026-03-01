@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  var COLLAPSED_HEIGHT = 160; // px, matches max-height in CSS (10rem)
+
   function initCopyButtons() {
     var blocks = document.querySelectorAll(".code-block");
     blocks.forEach(function (block) {
@@ -36,8 +38,10 @@
       var pre = block.querySelector("pre");
       if (!pre) return;
 
-      // Skip blocks that are already short enough
-      if (pre.scrollHeight <= pre.clientHeight + 20) return;
+      // Measure natural height before collapsing. The pre has no max-height
+      // yet, so scrollHeight == clientHeight == natural height.
+      var naturalHeight = pre.scrollHeight;
+      if (naturalHeight <= COLLAPSED_HEIGHT + 20) return;
 
       block.classList.add("code-block--collapsed");
 

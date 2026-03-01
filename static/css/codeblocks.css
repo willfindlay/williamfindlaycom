@@ -4,6 +4,13 @@
   margin-bottom: var(--space-lg);
 }
 
+/* Allow code blocks to expand beyond prose width up to the container edge */
+.prose .code-block {
+  max-width: calc(1100px - 2 * var(--space-lg));
+  width: max-content;
+  min-width: 100%;
+}
+
 .code-block pre {
   margin-bottom: 0;
 }
@@ -108,12 +115,6 @@
 
 .code-block__copy--copied {
   color: var(--color-accent);
-}
-
-/* Offset copy button when header is present */
-.code-block:has(.code-block__header) .code-block__copy {
-  top: var(--space-sm);
-  right: var(--space-sm);
 }
 
 /* Reduced motion */
