@@ -43,7 +43,11 @@
   color: #6272a4;
 }
 .chroma .line {
-  display: flex;
+  display: block;
+}
+.chroma .cl {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 .chroma .k {
   color: #ff79c6;

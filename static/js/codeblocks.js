@@ -52,6 +52,7 @@
 
       toggle.addEventListener("click", function () {
         var isCollapsed = block.classList.toggle("code-block--collapsed");
+        void block.offsetHeight;
         toggle.textContent = isCollapsed ? "Show more" : "Show less";
         toggle.setAttribute("aria-expanded", String(!isCollapsed));
       });
