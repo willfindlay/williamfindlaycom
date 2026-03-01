@@ -2,6 +2,7 @@
 .chroma {
   color: #f8f8f2;
   background-color: var(--color-bg-raised);
+  tab-size: 4;
 }
 .chroma .err {
   color: #ff5555;
@@ -44,6 +45,8 @@
 }
 .chroma .line {
   display: block;
+  padding-left: var(--indent, 0ch);
+  text-indent: calc(-1 * var(--indent, 0ch));
 }
 .chroma .cl {
   white-space: pre-wrap;

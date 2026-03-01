@@ -2,6 +2,41 @@
   "use strict";
 
   var COLLAPSED_HEIGHT = 160; // px, matches max-height in CSS (10rem)
+  var TAB_SIZE = 4;
+
+  function computeIndent(text) {
+    var indent = 0;
+    for (var i = 0; i < text.length; i++) {
+      if (text[i] === " ") {
+        indent++;
+      } else if (text[i] === "\t") {
+        indent += TAB_SIZE - (indent % TAB_SIZE);
+      } else {
+        break;
+      }
+    }
+    var rest = text.slice(i);
+    // Unordered list markers: - , * , +
+    if (/^[-*+] /.test(rest)) return indent + 2;
+    // Ordered list markers: 1. , 12. , etc.
+    var ol = rest.match(/^(\d+)\. /);
+    if (ol) return indent + ol[1].length + 2;
+    // Blockquote markers: >
+    if (/^> /.test(rest)) return indent + 2;
+    return indent;
+  }
+
+  function initHangingIndent() {
+    var lines = document.querySelectorAll(".chroma .line");
+    lines.forEach(function (line) {
+      var cl = line.querySelector(".cl");
+      if (!cl) return;
+      var indent = computeIndent(cl.textContent);
+      if (indent > 0) {
+        line.style.setProperty("--indent", indent + "ch");
+      }
+    });
+  }
 
   function initCopyButtons() {
     var blocks = document.querySelectorAll(".code-block");
@@ -64,6 +99,7 @@
   function init() {
     initCopyButtons();
     initCollapsible();
+    initHangingIndent();
   }
 
   init();
