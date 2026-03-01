@@ -29,7 +29,7 @@ type PageData struct {
 	OGType       string
 	OGImage      string
 	Author       string
-	JSONLD       template.HTML
+	JSONLD       template.JS
 	ActiveNav    string
 	Particles    config.ParticleConfig
 }

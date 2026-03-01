@@ -42,16 +42,16 @@ type jsonLDCollectionPage struct {
 	URL         string `json:"url"`
 }
 
-func marshalJSONLD(v any) template.HTML {
+func marshalJSONLD(v any) template.JS {
 	b, err := json.Marshal(v)
 	if err != nil {
 		slog.Error("jsonld marshal error", "err", err)
 		return ""
 	}
-	return template.HTML(b)
+	return template.JS(b)
 }
 
-func buildHomeJSONLD(siteTitle, siteURL string) template.HTML {
+func buildHomeJSONLD(siteTitle, siteURL string) template.JS {
 	graph := []any{
 		jsonLDWebSite{
 			jsonLDBase: jsonLDBase{Context: "https://schema.org", Type: "WebSite"},
@@ -73,10 +73,10 @@ func buildHomeJSONLD(siteTitle, siteURL string) template.HTML {
 		slog.Error("jsonld marshal error", "err", err)
 		return ""
 	}
-	return template.HTML(b)
+	return template.JS(b)
 }
 
-func buildBlogPostingJSONLD(post *content.BlogPost, siteURL string) template.HTML {
+func buildBlogPostingJSONLD(post *content.BlogPost, siteURL string) template.JS {
 	ld := jsonLDBlogPosting{
 		jsonLDBase:    jsonLDBase{Context: "https://schema.org", Type: "BlogPosting"},
 		Headline:      post.Title,
@@ -92,7 +92,7 @@ func buildBlogPostingJSONLD(post *content.BlogPost, siteURL string) template.HTM
 	return marshalJSONLD(ld)
 }
 
-func buildCollectionPageJSONLD(name, description, url string) template.HTML {
+func buildCollectionPageJSONLD(name, description, url string) template.JS {
 	ld := jsonLDCollectionPage{
 		jsonLDBase:  jsonLDBase{Context: "https://schema.org", Type: "CollectionPage"},
 		Name:        name,
