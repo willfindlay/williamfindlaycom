@@ -21,6 +21,9 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /feed.xml", s.deps.Feed())
 	mux.HandleFunc("GET /sitemap.xml", s.deps.Sitemap())
 	mux.HandleFunc("GET /robots.txt", s.deps.Robots())
+	mux.HandleFunc("GET /index", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	})
 
 	mux.HandleFunc("GET "+s.cssBundlePath, s.serveCSSBundle)
 
