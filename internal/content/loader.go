@@ -160,7 +160,7 @@ func loadBlogPosts(dir string, store *ContentStore) error {
 		post.Slug = slug
 		post.Content = rendered
 		post.PlainText = extractBody(data)
-		post.ReadingTime = readingTime(post.PlainText)
+		post.ReadingTime = readingTime(stripCodeBlocks(post.PlainText))
 		return post, nil
 	})
 	if err != nil {
@@ -299,6 +299,44 @@ func renderInlineMarkdown(s string) template.HTML {
 	out = strings.ReplaceAll(out, "<p>", "")
 	out = strings.ReplaceAll(out, "</p>", "")
 	return template.HTML(strings.TrimSpace(out))
+}
+
+// stripCodeBlocks removes fenced code block content from markdown text.
+// It handles fences with 3+ backticks; a closing fence must have at least
+// as many backticks as the opening fence.
+func stripCodeBlocks(text string) string {
+	var b strings.Builder
+	fenceLen := 0 // 0 = not inside a fence
+	for _, line := range strings.Split(text, "\n") {
+		trimmed := strings.TrimSpace(line)
+		if fenceLen == 0 {
+			n := countLeadingBackticks(trimmed)
+			if n >= 3 {
+				fenceLen = n
+				continue
+			}
+			b.WriteString(line)
+			b.WriteByte('\n')
+		} else {
+			n := countLeadingBackticks(trimmed)
+			if n >= fenceLen && strings.Trim(trimmed, "`") == "" {
+				fenceLen = 0
+			}
+		}
+	}
+	return b.String()
+}
+
+func countLeadingBackticks(s string) int {
+	n := 0
+	for _, c := range s {
+		if c == '`' {
+			n++
+		} else {
+			break
+		}
+	}
+	return n
 }
 
 func readingTime(text string) int {
