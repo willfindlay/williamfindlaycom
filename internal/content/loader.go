@@ -3,6 +3,7 @@ package content
 import (
 	"bytes"
 	"fmt"
+	htmlpkg "html"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -14,6 +15,7 @@ import (
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/renderer/html"
+	"github.com/yuin/goldmark/util"
 	"go.abhg.dev/goldmark/frontmatter"
 	"gopkg.in/yaml.v3"
 )
@@ -25,15 +27,71 @@ var md = goldmark.New(
 		highlighting.NewHighlighting(
 			highlighting.WithStyle("dracula"),
 			highlighting.WithFormatOptions(),
+			highlighting.WithWrapperRenderer(codeBlockWrapper),
 		),
 	),
 	goldmark.WithParserOptions(
 		parser.WithAutoHeadingID(),
+		parser.WithAttribute(),
 	),
 	goldmark.WithRendererOptions(
 		html.WithUnsafe(),
 	),
 )
+
+//nolint:errcheck // WriteString to a BufWriter; errors surface at flush time, not here.
+func codeBlockWrapper(w util.BufWriter, ctx highlighting.CodeBlockContext, entering bool) {
+	if entering {
+		filename := ""
+		collapsed := false
+		if attrs := ctx.Attributes(); attrs != nil {
+			if v, ok := attrs.GetString("filename"); ok {
+				switch s := v.(type) {
+				case string:
+					filename = s
+				case []byte:
+					filename = string(s)
+				}
+			}
+			if _, ok := attrs.GetString("collapsed"); ok {
+				collapsed = true
+			}
+		}
+
+		w.WriteString(`<div class="code-block"`)
+		if filename != "" {
+			w.WriteString(` data-filename="`)
+			w.WriteString(htmlpkg.EscapeString(filename))
+			w.WriteString(`"`)
+		}
+		if collapsed {
+			w.WriteString(` data-collapsed`)
+		}
+		w.WriteString(">\n")
+
+		if filename != "" {
+			w.WriteString(`<div class="code-block__header"><span class="code-block__filename">`)
+			w.WriteString(htmlpkg.EscapeString(filename))
+			w.WriteString("</span></div>\n")
+		}
+
+		if !ctx.Highlighted() {
+			lang, hasLang := ctx.Language()
+			if hasLang {
+				w.WriteString(`<pre><code class="language-`)
+				w.WriteString(htmlpkg.EscapeString(string(lang)))
+				w.WriteString(`">`)
+			} else {
+				w.WriteString("<pre><code>")
+			}
+		}
+	} else {
+		if !ctx.Highlighted() {
+			w.WriteString("</code></pre>\n")
+		}
+		w.WriteString("</div>\n")
+	}
+}
 
 func LoadFromDir(dir string) (*ContentStore, error) {
 	store := &ContentStore{

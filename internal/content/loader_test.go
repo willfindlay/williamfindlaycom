@@ -304,6 +304,107 @@ func TestExtractBody(t *testing.T) {
 	}
 }
 
+func TestRenderMarkdown_CodeBlockWrapper(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+` + "```go {filename=\"main.go\" collapsed=\"true\"}" + `
+package main
+
+func main() {}
+` + "```" + `
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if !strings.Contains(html, `<div class="code-block"`) {
+		t.Error("expected code-block wrapper div")
+	}
+	if !strings.Contains(html, `data-filename="main.go"`) {
+		t.Error("expected data-filename attribute")
+	}
+	if !strings.Contains(html, `data-collapsed`) {
+		t.Error("expected data-collapsed attribute")
+	}
+	if !strings.Contains(html, `<div class="code-block__header">`) {
+		t.Error("expected code-block header div")
+	}
+	if !strings.Contains(html, `<span class="code-block__filename">main.go</span>`) {
+		t.Error("expected filename span")
+	}
+}
+
+func TestRenderMarkdown_PlainCodeBlock(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+` + "```go" + `
+package main
+` + "```" + `
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if !strings.Contains(html, `<div class="code-block"`) {
+		t.Error("expected code-block wrapper div")
+	}
+	if strings.Contains(html, `data-filename`) {
+		t.Error("expected no data-filename attribute on plain block")
+	}
+	if strings.Contains(html, `data-collapsed`) {
+		t.Error("expected no data-collapsed attribute on plain block")
+	}
+	if strings.Contains(html, `code-block__header`) {
+		t.Error("expected no header on plain block")
+	}
+}
+
+func TestRenderMarkdown_NonHighlightedCodeBlock(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+` + "```" + `
+plain text block
+` + "```" + `
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if !strings.Contains(html, `<div class="code-block"`) {
+		t.Error("expected code-block wrapper div for non-highlighted block")
+	}
+	if !strings.Contains(html, "<pre><code>") {
+		t.Error("expected <pre><code> tags for non-highlighted block")
+	}
+	if !strings.Contains(html, "</code></pre>") {
+		t.Error("expected </code></pre> closing tags for non-highlighted block")
+	}
+}
+
 func TestLoadFromDir_SkipsNonMarkdown(t *testing.T) {
 	dir := t.TempDir()
 	blogDir := filepath.Join(dir, "blog")
