@@ -76,6 +76,28 @@ All config via environment variables (see `internal/config/`). Key ones:
 - `PORT` (default 8080), `SYNC_INTERVAL` (default 5m), `DEV_MODE` (default false)
 - `PARTICLE_*`: Canvas particle system parameters (count, speed, size, colors, etc.)
 
+## Issue Labels
+
+When creating issues or PRs, apply labels from these categories:
+
+**Type** (one per issue):
+- `bug` -- something isn't working
+- `enhancement` -- new feature or improvement
+- `chore` -- maintenance, refactoring, cleanup
+- `documentation` -- docs changes
+
+**Area** (one or more per issue):
+- `area/frontend` -- CSS, JS, templates
+- `area/backend` -- Go handlers, middleware, server
+- `area/content` -- content pipeline, loader, sync, frontmatter
+- `area/infra` -- Docker, k8s, CI, deployment
+- `area/seo` -- feeds, sitemap, structured data, redirects
+
+**Effort** (one per issue):
+- `effort/small` -- a few hours, 1-2 files
+- `effort/medium` -- half day to a day, moderate scope
+- `effort/large` -- multi-day, significant new functionality
+
 ## Docker
 
 Multi-stage: `golang:1.25-alpine` → `gcr.io/distroless/static:nonroot`. Static assets are embedded in the binary. The `/data/content` directory for Git operations must be pre-created in the build stage since distroless has no shell.
