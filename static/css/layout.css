@@ -16,6 +16,18 @@
   z-index: 100;
 }
 
+.site-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(var(--reading-progress, 0));
+  transform-origin: left;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -494,7 +506,6 @@
 .resume-oss li::marker {
   color: var(--color-accent);
 }
-
 
 /* Responsive */
 @media (max-width: 768px) {
