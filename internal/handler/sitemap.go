@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/willfindlay/williamfindlaycom/internal/content"
 )
@@ -12,6 +13,10 @@ type sitemapData struct {
 	SiteURL  string
 	Posts    []content.BlogPost
 	Projects []content.Project
+
+	BlogLastmod     time.Time
+	ProjectsLastmod time.Time
+	GlobalLastmod   time.Time
 }
 
 func (d *Deps) Sitemap() http.HandlerFunc {
@@ -25,6 +30,17 @@ func (d *Deps) Sitemap() http.HandlerFunc {
 		if store != nil {
 			data.Posts = store.Posts
 			data.Projects = store.Projects
+
+			if len(store.Posts) > 0 {
+				data.BlogLastmod = store.Posts[0].Date
+				data.GlobalLastmod = store.Posts[0].Date
+			}
+			if len(store.Projects) > 0 {
+				data.ProjectsLastmod = store.Projects[0].Date
+				if data.ProjectsLastmod.After(data.GlobalLastmod) {
+					data.GlobalLastmod = data.ProjectsLastmod
+				}
+			}
 		}
 
 		var buf bytes.Buffer

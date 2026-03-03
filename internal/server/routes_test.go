@@ -300,6 +300,31 @@ func TestRoutes_Sitemap(t *testing.T) {
 	if !strings.Contains(body, "/blog/test-post") {
 		t.Error("expected test post URL in sitemap")
 	}
+
+	// Static pages should have lastmod derived from content dates.
+	// The newest post is 2024-01-02, so blog and global lastmod use that date.
+	if !strings.Contains(body, "<loc>http://localhost</loc>") {
+		t.Error("expected home URL in sitemap")
+	}
+	if !strings.Contains(body, "<loc>http://localhost/blog</loc>") {
+		t.Error("expected blog URL in sitemap")
+	}
+	// Home and blog entries should have lastmod from the newest post
+	wantLastmod := "2024-01-02T00:00:00Z"
+	if !strings.Contains(body, "<loc>http://localhost</loc>\n        <lastmod>"+wantLastmod+"</lastmod>") {
+		t.Errorf("expected home lastmod %s in sitemap", wantLastmod)
+	}
+	if !strings.Contains(body, "<loc>http://localhost/blog</loc>\n        <lastmod>"+wantLastmod+"</lastmod>") {
+		t.Errorf("expected blog lastmod %s in sitemap", wantLastmod)
+	}
+	// Resume should also use global lastmod
+	if !strings.Contains(body, "<loc>http://localhost/resume</loc>\n        <lastmod>"+wantLastmod+"</lastmod>") {
+		t.Errorf("expected resume lastmod %s in sitemap", wantLastmod)
+	}
+	// Projects page should have no lastmod (no project content in test fixture)
+	if strings.Contains(body, "<loc>http://localhost/projects</loc>\n        <lastmod>") {
+		t.Error("did not expect projects lastmod with no project content")
+	}
 }
 
 func TestRoutes_BlogPost(t *testing.T) {
