@@ -19,6 +19,7 @@ func (s *Server) routes() http.Handler {
 	mux.HandleFunc("GET /projects/{slug}", s.deps.ProjectDetail())
 	mux.HandleFunc("GET /resume", s.deps.Resume())
 	mux.HandleFunc("GET /feed.xml", s.deps.Feed())
+	mux.HandleFunc("GET /feed.json", s.deps.JSONFeed())
 	mux.HandleFunc("GET /sitemap.xml", s.deps.Sitemap())
 	mux.HandleFunc("GET /robots.txt", s.deps.Robots())
 	mux.HandleFunc("GET /index", func(w http.ResponseWriter, r *http.Request) {

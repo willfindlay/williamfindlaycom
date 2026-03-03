@@ -24,6 +24,7 @@
     {{if .OGImage}}<meta name="twitter:image" content="{{.OGImage}}">{{end}}
 
     <link rel="alternate" type="application/atom+xml" title="{{.SiteTitle}}" href="/feed.xml">
+    <link rel="alternate" type="application/feed+json" title="{{.SiteTitle}}" href="/feed.json">
     <link rel="sitemap" type="application/xml" href="/sitemap.xml">
 
     {{if .JSONLD}}<script type="application/ld+json">{{.JSONLD}}</script>{{end}}
