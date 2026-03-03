@@ -440,6 +440,124 @@ Content.
 	}
 }
 
+func TestLoadFromDir_Redirects(t *testing.T) {
+	dir := t.TempDir()
+	redirectsYAML := `- from: /old-post
+  to: /blog/new-post
+  code: 302
+- from: /index
+  to: /
+  code: 301
+`
+	if err := os.WriteFile(filepath.Join(dir, "_redirects.yaml"), []byte(redirectsYAML), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := LoadFromDir(dir)
+	if err != nil {
+		t.Fatalf("LoadFromDir: %v", err)
+	}
+
+	if len(store.Redirects) != 2 {
+		t.Fatalf("expected 2 redirects, got %d", len(store.Redirects))
+	}
+
+	r, ok := store.Redirects["/old-post"]
+	if !ok {
+		t.Fatal("missing redirect for /old-post")
+	}
+	if r.To != "/blog/new-post" {
+		t.Errorf("expected to=/blog/new-post, got %q", r.To)
+	}
+	if r.Code != 302 {
+		t.Errorf("expected code=302, got %d", r.Code)
+	}
+
+	r2, ok := store.Redirects["/index"]
+	if !ok {
+		t.Fatal("missing redirect for /index")
+	}
+	if r2.To != "/" {
+		t.Errorf("expected to=/, got %q", r2.To)
+	}
+}
+
+func TestLoadFromDir_RedirectsDefaultCode(t *testing.T) {
+	dir := t.TempDir()
+	redirectsYAML := `- from: /old
+  to: /new
+`
+	if err := os.WriteFile(filepath.Join(dir, "_redirects.yaml"), []byte(redirectsYAML), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	store, err := LoadFromDir(dir)
+	if err != nil {
+		t.Fatalf("LoadFromDir: %v", err)
+	}
+
+	r, ok := store.Redirects["/old"]
+	if !ok {
+		t.Fatal("missing redirect for /old")
+	}
+	if r.Code != 301 {
+		t.Errorf("expected default code=301, got %d", r.Code)
+	}
+}
+
+func TestLoadFromDir_RedirectsMissingFile(t *testing.T) {
+	dir := t.TempDir()
+
+	store, err := LoadFromDir(dir)
+	if err != nil {
+		t.Fatalf("LoadFromDir: %v", err)
+	}
+
+	if len(store.Redirects) != 0 {
+		t.Errorf("expected 0 redirects, got %d", len(store.Redirects))
+	}
+}
+
+func TestLoadFromDir_RedirectsValidation(t *testing.T) {
+	tests := []struct {
+		name string
+		yaml string
+	}{
+		{
+			name: "empty from",
+			yaml: "- from: \"\"\n  to: /new\n",
+		},
+		{
+			name: "empty to",
+			yaml: "- from: /old\n  to: \"\"\n",
+		},
+		{
+			name: "code 200",
+			yaml: "- from: /old\n  to: /new\n  code: 200\n",
+		},
+		{
+			name: "code 500",
+			yaml: "- from: /old\n  to: /new\n  code: 500\n",
+		},
+		{
+			name: "duplicate from",
+			yaml: "- from: /old\n  to: /a\n- from: /old\n  to: /b\n",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dir := t.TempDir()
+			if err := os.WriteFile(filepath.Join(dir, "_redirects.yaml"), []byte(tt.yaml), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			_, err := LoadFromDir(dir)
+			if err == nil {
+				t.Error("expected error, got nil")
+			}
+		})
+	}
+}
+
 func TestStripCodeBlocks(t *testing.T) {
 	tests := []struct {
 		name string

@@ -105,7 +105,7 @@ func (s *Server) Run() error {
 		return fmt.Errorf("initial content load: %w", err)
 	}
 	s.store.Store(cs)
-	slog.Info("content loaded", "posts", len(cs.Posts), "projects", len(cs.Projects))
+	slog.Info("content loaded", "posts", len(cs.Posts), "projects", len(cs.Projects), "redirects", len(cs.Redirects))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

@@ -63,6 +63,14 @@ More content.
 		t.Fatal(err)
 	}
 
+	redirectsYAML := `- from: /old-post
+  to: /blog/test-post
+  code: 301
+`
+	if err := os.WriteFile(filepath.Join(contentDir, "_redirects.yaml"), []byte(redirectsYAML), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
 	store := content.NewAtomicStore()
 	cs, err := content.LoadFromDir(contentDir)
 	if err != nil {
@@ -516,6 +524,32 @@ func TestRoutes_Feed(t *testing.T) {
 	body := readBody(t, resp)
 	if !strings.Contains(body, "<feed") {
 		t.Error("expected Atom feed element in body")
+	}
+}
+
+func TestRoutes_Redirect(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+
+	resp, err := client.Get(ts.URL + "/old-post")
+	if err != nil {
+		t.Fatalf("GET /old-post: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusMovedPermanently {
+		t.Errorf("expected 301, got %d", resp.StatusCode)
+	}
+
+	loc := resp.Header.Get("Location")
+	if loc != "/blog/test-post" {
+		t.Errorf("expected Location /blog/test-post, got %q", loc)
 	}
 }
 

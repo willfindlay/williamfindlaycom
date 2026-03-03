@@ -101,6 +101,7 @@ func LoadFromDir(dir string) (*ContentStore, error) {
 		PostsBySlug:    make(map[string]*BlogPost),
 		PostsByTag:     make(map[string][]*BlogPost),
 		ProjectsBySlug: make(map[string]*Project),
+		Redirects:      make(map[string]Redirect),
 	}
 
 	if err := loadBlogPosts(filepath.Join(dir, "blog"), store); err != nil {
@@ -113,6 +114,10 @@ func LoadFromDir(dir string) (*ContentStore, error) {
 
 	if err := loadResume(filepath.Join(dir, "resume"), store); err != nil {
 		return nil, fmt.Errorf("loading resume: %w", err)
+	}
+
+	if err := loadRedirects(dir, store); err != nil {
+		return nil, fmt.Errorf("loading redirects: %w", err)
 	}
 
 	return store, nil
@@ -267,6 +272,43 @@ func loadResume(dir string, store *ContentStore) error {
 	}
 
 	store.Resume = &resume
+	return nil
+}
+
+func loadRedirects(dir string, store *ContentStore) error {
+	path := filepath.Join(dir, "_redirects.yaml")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	var redirects []Redirect
+	if err := yaml.Unmarshal(data, &redirects); err != nil {
+		return fmt.Errorf("parsing redirects YAML: %w", err)
+	}
+
+	for i, r := range redirects {
+		if r.From == "" {
+			return fmt.Errorf("redirect %d: empty 'from' path", i)
+		}
+		if r.To == "" {
+			return fmt.Errorf("redirect %d: empty 'to' path", i)
+		}
+		if r.Code == 0 {
+			r.Code = 301
+		}
+		if r.Code < 300 || r.Code > 399 {
+			return fmt.Errorf("redirect %d: code %d not in 300-399 range", i, r.Code)
+		}
+		if _, exists := store.Redirects[r.From]; exists {
+			return fmt.Errorf("redirect %d: duplicate 'from' path %q", i, r.From)
+		}
+		store.Redirects[r.From] = r
+	}
+
 	return nil
 }
 

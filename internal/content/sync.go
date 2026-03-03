@@ -94,6 +94,7 @@ func StartBackgroundSync(ctx context.Context, cfg SyncConfig, store *AtomicStore
 			slog.Info("content reloaded",
 				"posts", len(cs.Posts),
 				"projects", len(cs.Projects),
+				"redirects", len(cs.Redirects),
 			)
 		}
 	}

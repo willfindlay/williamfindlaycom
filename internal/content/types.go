@@ -152,6 +152,12 @@ func FormatDateRange(start ResumeDate, end *ResumeDate) string {
 	return s + " – " + end.FormatDate()
 }
 
+type Redirect struct {
+	From string `yaml:"from"`
+	To   string `yaml:"to"`
+	Code int    `yaml:"code"`
+}
+
 type ContentStore struct {
 	Posts       []BlogPost
 	PostsBySlug map[string]*BlogPost
@@ -161,6 +167,8 @@ type ContentStore struct {
 	ProjectsBySlug map[string]*Project
 
 	Resume *Resume
+
+	Redirects map[string]Redirect
 }
 
 // RelatedPosts returns up to `limit` posts related to the given slug,
