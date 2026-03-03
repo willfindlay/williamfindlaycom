@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -490,5 +491,62 @@ func TestRoutes_Feed(t *testing.T) {
 	body := readBody(t, resp)
 	if !strings.Contains(body, "<feed") {
 		t.Error("expected Atom feed element in body")
+	}
+}
+
+func TestRoutes_JSONFeed(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/feed.json")
+	if err != nil {
+		t.Fatalf("GET /feed.json: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	ct := resp.Header.Get("Content-Type")
+	if !strings.Contains(ct, "application/feed+json") {
+		t.Errorf("expected application/feed+json content type, got %q", ct)
+	}
+
+	body := readBody(t, resp)
+
+	var feed struct {
+		Version     string `json:"version"`
+		Title       string `json:"title"`
+		HomePageURL string `json:"home_page_url"`
+		FeedURL     string `json:"feed_url"`
+		Items       []struct {
+			ID          string   `json:"id"`
+			URL         string   `json:"url"`
+			Title       string   `json:"title"`
+			ContentHTML string   `json:"content_html"`
+			Tags        []string `json:"tags"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal([]byte(body), &feed); err != nil {
+		t.Fatalf("invalid JSON: %v", err)
+	}
+
+	if feed.Version != "https://jsonfeed.org/version/1.1" {
+		t.Errorf("expected JSON Feed 1.1 version, got %q", feed.Version)
+	}
+	if feed.Title != "Test Site" {
+		t.Errorf("expected title 'Test Site', got %q", feed.Title)
+	}
+	if len(feed.Items) != 2 {
+		t.Fatalf("expected 2 items, got %d", len(feed.Items))
+	}
+
+	// Posts are sorted by date descending, so Second Post (2024-01-02) comes first
+	if feed.Items[0].Title != "Second Post" {
+		t.Errorf("expected first item 'Second Post', got %q", feed.Items[0].Title)
+	}
+	if feed.Items[0].ContentHTML == "" {
+		t.Error("expected non-empty content_html")
 	}
 }
