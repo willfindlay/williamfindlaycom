@@ -2,15 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>{{.SiteURL}}</loc>
+        {{if not .GlobalLastmod.IsZero}}<lastmod>{{formatRFC3339 .GlobalLastmod}}</lastmod>{{end}}
     </url>
     <url>
         <loc>{{.SiteURL}}/blog</loc>
+        {{if not .BlogLastmod.IsZero}}<lastmod>{{formatRFC3339 .BlogLastmod}}</lastmod>{{end}}
     </url>
     <url>
         <loc>{{.SiteURL}}/projects</loc>
+        {{if not .ProjectsLastmod.IsZero}}<lastmod>{{formatRFC3339 .ProjectsLastmod}}</lastmod>{{end}}
     </url>
     <url>
         <loc>{{.SiteURL}}/resume</loc>
+        {{if not .GlobalLastmod.IsZero}}<lastmod>{{formatRFC3339 .GlobalLastmod}}</lastmod>{{end}}
     </url>
     {{range .Posts}}
     <url>
