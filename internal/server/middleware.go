@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/willfindlay/williamfindlaycom/internal/content"
 )
 
 func logging(next http.Handler) http.Handler {
@@ -26,6 +28,18 @@ func securityHeaders(next http.Handler) http.Handler {
 		w.Header().Set("X-Frame-Options", "DENY")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; img-src 'self' data: https:; frame-src https://giscus.app")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func redirects(store *content.AtomicStore, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if cs := store.Load(); cs != nil {
+			if redir, ok := cs.Redirects[r.URL.Path]; ok {
+				http.Redirect(w, r, redir.To, redir.Code)
+				return
+			}
+		}
 		next.ServeHTTP(w, r)
 	})
 }
