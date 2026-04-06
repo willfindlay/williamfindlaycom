@@ -12,12 +12,13 @@ import (
 )
 
 type Deps struct {
-	Store     *content.AtomicStore
-	Renderer  *render.Renderer
-	SiteTitle string
-	SiteURL   string
-	Particles config.ParticleConfig
-	Giscus    config.GiscusConfig
+	Store      *content.AtomicStore
+	Renderer   *render.Renderer
+	SiteTitle  string
+	SiteURL    string
+	ContentDir string
+	Particles  config.ParticleConfig
+	Giscus     config.GiscusConfig
 }
 
 type PageData struct {

@@ -31,6 +31,8 @@ func (s *Server) routes() http.Handler {
 	}
 	mux.Handle("GET /static/", http.StripPrefix("/static/", cacheStatic(http.FileServerFS(staticFS))))
 
+	mux.HandleFunc("GET /content/{path...}", s.deps.ContentFile())
+
 	// Catch-all for 404
 	mux.HandleFunc("GET /", s.deps.Home())
 

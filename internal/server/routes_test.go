@@ -78,12 +78,25 @@ More content.
 	}
 	store.Store(cs)
 
+	// Create content image for content file tests
+	imgDir := filepath.Join(contentDir, "blog", "test-post")
+	if err := os.MkdirAll(imgDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(imgDir, "photo.jpg"), []byte("fake-jpg-data"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(imgDir, "notes.txt"), []byte("not an image"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
 	deps := &handler.Deps{
-		Store:     store,
-		Renderer:  renderer,
-		SiteTitle: "Test Site",
-		SiteURL:   "http://localhost",
-		Particles: config.ParticleConfig{},
+		Store:      store,
+		Renderer:   renderer,
+		SiteTitle:  "Test Site",
+		SiteURL:    "http://localhost",
+		ContentDir: contentDir,
+		Particles:  config.ParticleConfig{},
 	}
 
 	srv := &Server{
@@ -550,6 +563,71 @@ func TestRoutes_Redirect(t *testing.T) {
 	loc := resp.Header.Get("Location")
 	if loc != "/blog/test-post" {
 		t.Errorf("expected Location /blog/test-post, got %q", loc)
+	}
+}
+
+func TestRoutes_ContentImage(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/content/blog/test-post/photo.jpg")
+	if err != nil {
+		t.Fatalf("GET /content/blog/test-post/photo.jpg: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+
+	cc := resp.Header.Get("Cache-Control")
+	if cc != "public, max-age=3600, s-maxage=300" {
+		t.Errorf("expected Cache-Control header, got %q", cc)
+	}
+}
+
+func TestRoutes_ContentImageNotFound(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/content/blog/test-post/missing.jpg")
+	if err != nil {
+		t.Fatalf("GET /content/blog/test-post/missing.jpg: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", resp.StatusCode)
+	}
+}
+
+func TestRoutes_ContentNonImage(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/content/blog/test-post/notes.txt")
+	if err != nil {
+		t.Fatalf("GET /content/blog/test-post/notes.txt: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", resp.StatusCode)
+	}
+}
+
+func TestRoutes_ContentPathTraversal(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/content/../../etc/passwd")
+	if err != nil {
+		t.Fatalf("GET path traversal: %v", err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", resp.StatusCode)
 	}
 }
 
