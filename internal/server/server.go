@@ -41,12 +41,13 @@ func New(cfg *config.Config, embedded fs.FS) (*Server, error) {
 
 	store := content.NewAtomicStore()
 	deps := &handler.Deps{
-		Store:     store,
-		Renderer:  renderer,
-		SiteTitle: cfg.SiteTitle,
-		SiteURL:   cfg.SiteURL,
-		Particles: cfg.Particles,
-		Giscus:    cfg.Giscus,
+		Store:      store,
+		Renderer:   renderer,
+		SiteTitle:  cfg.SiteTitle,
+		SiteURL:    cfg.SiteURL,
+		ContentDir: cfg.ContentDir,
+		Particles:  cfg.Particles,
+		Giscus:     cfg.Giscus,
 	}
 
 	return &Server{
