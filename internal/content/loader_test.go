@@ -558,6 +558,90 @@ func TestLoadFromDir_RedirectsValidation(t *testing.T) {
 	}
 }
 
+func TestRenderMarkdown_FigureWithCaption(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+![alt text](/content/blog/my-post/photo.jpg "Caption text here")
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if !strings.Contains(html, "<figure>") {
+		t.Error("expected <figure> tag")
+	}
+	if !strings.Contains(html, "</figure>") {
+		t.Error("expected </figure> tag")
+	}
+	if !strings.Contains(html, "<figcaption>Caption text here</figcaption>") {
+		t.Error("expected <figcaption> with caption text")
+	}
+	if !strings.Contains(html, `alt="alt text"`) {
+		t.Error("expected alt attribute on img")
+	}
+	if strings.Contains(html, `title="`) {
+		t.Error("title attribute should be removed from img when used as caption")
+	}
+}
+
+func TestRenderMarkdown_FigureWithoutCaption(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+![alt text](/content/blog/my-post/photo.jpg)
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if !strings.Contains(html, "<figure>") {
+		t.Error("expected <figure> tag")
+	}
+	if strings.Contains(html, "<figcaption>") {
+		t.Error("expected no <figcaption> when image has no title")
+	}
+}
+
+func TestRenderMarkdown_InlineImageNotConverted(t *testing.T) {
+	src := `---
+title: Test
+date: 2024-01-01
+description: A test
+---
+
+Here is an image ![alt](/img.png) in a paragraph.
+`
+	var post BlogPost
+	rendered, err := renderMarkdown([]byte(src), &post)
+	if err != nil {
+		t.Fatalf("renderMarkdown: %v", err)
+	}
+
+	html := string(rendered)
+
+	if strings.Contains(html, "<figure>") {
+		t.Error("inline image should not be wrapped in <figure>")
+	}
+	if !strings.Contains(html, "<img") {
+		t.Error("expected <img> tag in output")
+	}
+}
+
 func TestStripCodeBlocks(t *testing.T) {
 	tests := []struct {
 		name string

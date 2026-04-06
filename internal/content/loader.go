@@ -32,6 +32,7 @@ var md = goldmark.New(
 			),
 			highlighting.WithWrapperRenderer(codeBlockWrapper),
 		),
+		&figureExtender{},
 	),
 	goldmark.WithParserOptions(
 		parser.WithAutoHeadingID(),
