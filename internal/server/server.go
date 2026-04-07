@@ -88,17 +88,25 @@ func buildCSSBundle(fsys fs.FS) ([]byte, string, error) {
 }
 
 func (s *Server) Run() error {
-	syncCfg := content.SyncConfig{
-		RepoURL:   s.cfg.ContentRepoURL,
-		Branch:    s.cfg.ContentRepoBranch,
-		Dir:       s.cfg.ContentDir,
-		Interval:  s.cfg.SyncInterval,
-		AuthToken: s.cfg.GitAuthToken,
-	}
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 
-	// Initial content load
-	if err := content.CloneOrPull(syncCfg); err != nil {
-		return fmt.Errorf("initial content sync: %w", err)
+	if s.cfg.ContentRepoURL != "" {
+		syncCfg := content.SyncConfig{
+			RepoURL:   s.cfg.ContentRepoURL,
+			Branch:    s.cfg.ContentRepoBranch,
+			Dir:       s.cfg.ContentDir,
+			Interval:  s.cfg.SyncInterval,
+			AuthToken: s.cfg.GitAuthToken,
+		}
+
+		if err := content.CloneOrPull(syncCfg); err != nil {
+			return fmt.Errorf("initial content sync: %w", err)
+		}
+
+		go content.StartBackgroundSync(ctx, syncCfg, s.store)
+	} else {
+		slog.Info("no CONTENT_REPO_URL set, loading content from disk only", "dir", s.cfg.ContentDir)
 	}
 
 	cs, err := content.LoadFromDir(s.cfg.ContentDir)
@@ -107,11 +115,6 @@ func (s *Server) Run() error {
 	}
 	s.store.Store(cs)
 	slog.Info("content loaded", "posts", len(cs.Posts), "projects", len(cs.Projects), "redirects", len(cs.Redirects))
-
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer stop()
-
-	go content.StartBackgroundSync(ctx, syncCfg, s.store)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", s.cfg.Port),
