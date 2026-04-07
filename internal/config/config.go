@@ -45,9 +45,6 @@ type Config struct {
 
 func Load() (*Config, error) {
 	repoURL := os.Getenv("CONTENT_REPO_URL")
-	if repoURL == "" {
-		return nil, fmt.Errorf("CONTENT_REPO_URL is required")
-	}
 
 	syncInterval := 5 * time.Minute
 	if v := os.Getenv("SYNC_INTERVAL"); v != "" {
